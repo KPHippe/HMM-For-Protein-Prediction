@@ -126,7 +126,7 @@ def parse():
 
 
 
-   return (GO_TERM_LISTS_80, GO_TERM_LISTS_20)
+    return (GO_TERM_LISTS_80, GO_TERM_LISTS_20)
 
 '''
 Write each go terms seqeunce to a new file in parentDir/DataForHMM
