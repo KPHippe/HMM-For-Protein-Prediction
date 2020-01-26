@@ -1,44 +1,100 @@
-#data = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',' ']
-data2 = ['ABCDEFGHIJKLMNOPQRSTUVWXYZ ', 'AAAAAAAAAAAAAA']
-list_data = []
-alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ '
-formatMap = {
+import os
+import re
+from tqdm import tqdm
 
-        "A": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "B": [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "C": [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "D": [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "E": [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "F": [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "G": [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "H": [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "I": [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "J": [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "K": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "L": [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "M": [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "N": [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "O": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-        "P": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-        "Q": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
-        "R": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-        "S": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
-        "T": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-        "U": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
-        "V": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
-        "W": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
-        "X": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
-        "Y": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
-        "Z": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
-        " ": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
 
-        }
 
-with open('train.txt') as file:
-    data = file.read()
+def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
 
-    for indx in data:
-        for char in indx:
-            list_data.append(formatMap[char])
+    '''
+    Write each go terms seqeunce to a new file in parentDir/DataForHMM
+    '''
+    try:
+        os.mkdir(os.pardir + "/TrainingDataForHMM")
+    except: 
+        print("Training folder already made")
 
-print(list_data)
+    try:
+        os.mkdir(os.pardir + "/TestDataForHMM")
+    except: 
+        print("Testing folder already made")
+    
+    print("\nWriting training data to files...")
+    for term, sequences in tqdm(GO_TERM_LISTS_80.items()):
+        fileName = term + ".txt"
+        with open(os.pardir + "/TrainingDataForHMM/" + fileName, 'w') as f:
+            sequenceData = formatData(sequences)
+            for sequence in sequenceData:
+                f.write('-'.join(str(i) for i in sequence))
+                f.write('\n')
+                
+            #f.write(term + " > ")
+            #f.write('\n'.join(sequences))
+    print("\nWriting Test data to files...")
+    for term, sequences in tqdm(GO_TERM_LISTS_20.items()):
+        fileName = term + ".txt"
+        with open(os.pardir + "/TestDataForHMM/" + fileName, 'w') as f:
+            seqeunceData = formatData(sequences)
+            for sequence in sequenceData:
+                f.write('-'.join(str(i) for i in sequence))
+                f.write('\n')
+            
+            #f.write(term + " > ")
+            #f.write('\n'.join(sequences))
+
+    print("Done creating data to feed into HMM")
+
+def formatData(sequences):
+    formatMap = {
+
+            "A": 1, 
+            "B": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "J": 10,
+            "K": 11,
+            "L": 12,
+            "M": 13,
+            "N": 14,
+            "O": 15,
+            "P": 16,
+            "Q": 17,
+            "R": 18,
+            "S": 19,
+            "T": 20,
+            "U": 21,
+            "V": 22,
+            "W": 23,
+            "X": 24,
+            "Y": 25,
+            "Z": 26,
+            " ": 27
+            }
+
+    #with open('CNAT.txt') as file:
+     #   raw_data = file.read()
+     #  data = re.split('[ > ]+|\n+', raw_data)
+     #   # GoTerm is in first index, very last newline character is in last index
+     #   list_data = data[1:-1]
+
+    sequenceData = []
+    for sequence in sequences:
+        tmpList = []
+        for char in sequence:
+            tmpList.append(formatMap[char])
+        sequenceData.append(tmpList)
+        
+    #with open("testDataForHMM.txt", 'w') as f: 
+    #    for sequence in sequenceData: 
+    #        f.write('-'.join(str(i) for i in sequence))
+    #        f.write('\n')
+
+
+    return sequenceData
+
+

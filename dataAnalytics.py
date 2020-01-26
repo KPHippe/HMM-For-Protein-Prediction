@@ -5,10 +5,11 @@ import re
 from collections import OrderedDict
 import numpy as np
 import matplotlib.pyplot as plt
+import operator
 
 DEBUG = False
 
-file_path = os.curdir +  "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
+file_path = os.pardir +  "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
 
 if len(sys.argv) > 1:
     file_path = os.curdir + sys.argv[1]
@@ -54,7 +55,7 @@ have
 
 '''
 
-GOTERMSCOUNT = OrderedDict()
+GOTERMSCOUNT = {}
 
 maxSequencePerGOTerm = (0, None)
 totalSequeneNum = 0
@@ -76,6 +77,28 @@ print("Total different go terms in this database: {}".format(len(GOTERMSCOUNT)))
 print("Average number of sequences per go term: {}".format(totalSequeneNum//len(GOTERMSCOUNT)))
 print("Max number of seqeunces for a go term: {} ({})".format(maxSequencePerGOTerm[0], maxSequencePerGOTerm[1]))
 
+#tuple
+sortedGOTERMSCOUNT = sorted(GOTERMSCOUNT.items(), key=operator.itemgetter(1), reverse=True)
+
+i = 0
+for term, count, in sortedGOTERMSCOUNT:
+    print("Term: {} Occurences: {}".format(term, count))
+    if i > 20:
+        break
+
+    i+=1
+print("after deleting bvsv")
+del GOTERMSCOUNT["BVSV"]
+sortedGOTERMSCOUNT = sorted(GOTERMSCOUNT.items(), key=operator.itemgetter(1), reverse=True)
+
+i = 0
+for term, count, in sortedGOTERMSCOUNT:
+    print("Term: {} Occurences: {}".format(term, count))
+    if i > 20:
+        sys.exit()
+
+    i+=1
+
 
 '''
 
@@ -86,26 +109,26 @@ y axis -> density
 
 '''
 
-termsCountList = []
+#termsCountList = []
 
-for term, count in GOTERMSCOUNT.items():
-    termsCountList.append(count)
+#for term, count in GOTERMSCOUNT.items():
+#    termsCountList.append(count)
 
 #print(*termsCountList)
-plotData = []
-termsCountList = sorted(termsCountList)
+#plotData = []
+#termsCountList = sorted(termsCountList)
 
 
-numBins = 180
+#numBins = 180
 
-fig, ax = plt.subplots()
+#fig, ax = plt.subplots()
 
-n, bins, patches = ax.hist(termsCountList,numBins, density=1)
+#n, bins, patches = ax.hist(termsCountList,numBins, density=1)
 
-ax.set_xlabel("Number of occurences of seqeuneces that match to go term")
-ax.set_ylabel("Density")
+#ax.set_xlabel("Number of occurences of seqeuneces that match to go term")
+#ax.set_ylabel("Density")
 
-plt.show()
+#plt.show()
 
 
 

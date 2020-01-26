@@ -4,144 +4,154 @@ import time
 import re
 from collections import OrderedDict
 import numpy as np
-import matplotlib.pyplot as plt
-import pickle
 import random
-formatMap = {
 
-        "A": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "B": [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "C": [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "D": [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "E": [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "F": [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "G": [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "H": [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "I": [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "J": [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "K": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "L": [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "M": [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "N": [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        "O": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-        "P": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-        "Q": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
-        "R": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-        "S": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
-        "T": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-        "U": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
-        "V": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
-        "W": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
-        "X": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
-        "Y": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
-        "Z": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
-        " ": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+def parse():
 
-        }
+    file_path = os.pardir + "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
+
+    if len(sys.argv) > 1:
+        file_path = os.curdir + sys.argv[1]
+    '''
+    Read in our data, store it in UNIPROT
+
+    data structure
+    key: protein sequence -> string
+    value: protein structure -> list of strings
+
+    '''
+
+    UNIPROT = OrderedDict()
+
+    raw_data = open(file_path, 'r').read().strip()
+    raw_data = re.split('[|]+|\n+', raw_data)
 
 
-DEBUG = False
+    for i in range(0,len(raw_data), 2):
+        sequence = raw_data[i].replace(' ', '')
+        function = raw_data[i+1].split(" ")
+        UNIPROT[sequence] = function
 
-file_path = os.curdir +  "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
+    print("Done reading data...")
 
-if len(sys.argv) > 1:
-    file_path = os.curdir + sys.argv[1]
+    '''
+
+    Create our random split for training and testing data
+
+    '''
+    list_dict_keys = list(UNIPROT.keys())
+    random.shuffle(list_dict_keys)
+    eightyPercent = list_dict_keys[:round(len(list_dict_keys)*.8)]
+    twentyPercent = list_dict_keys[len(eightyPercent):]
+
+
+    with open('trainingEighty.txt', 'w') as file:
+       file.write(str(eightyPercent))
+
+    with open('trainingTwenty.txt', 'w') as file:
+        file.write(str(twentyPercent))
+
+
+    '''
+    This function makes a dictionary: 
+        key -> GO Term
+        value -> list of sequences
+    '''
+    GOTERMSLISTS = {} 
+
+    for sequence in list(UNIPROT.keys()): 
+        terms = UNIPROT[sequence]
+        for term in terms: 
+            if GOTERMSLISTS.get(term) != None: 
+                GOTERMSLISTS.get(term).append(str(sequence))
+
+            else: 
+                GOTERMSLISTS[term] = []
+                GOTERMSLISTS[term].append(str(sequence))
+    bannedTerms = set()
+
+    for term, sequences in GOTERMSLISTS.items():
+        if len(sequences) > 10000:
+            bannedTerms.add(term)
+
+    GO_TERM_LISTS_80 = OrderedDict()
+    GO_TERM_LISTS_20 = OrderedDict()
+
+    for sequence in eightyPercent: 
+        terms = UNIPROT[sequence]
+        for term in terms:
+            if term not in bannedTerms:
+
+                if GO_TERM_LISTS_80.get(term) != None: 
+                    GO_TERM_LISTS_80.get(term).append(str(sequence))
+
+                else: 
+                    GO_TERM_LISTS_80[term] = []
+                    GO_TERM_LISTS_80[term].append(str(sequence))
+           
+           
+    for sequence in twentyPercent: 
+        terms = UNIPROT[sequence]
+        for term in terms:
+            if term not in bannedTerms:
+
+                if GO_TERM_LISTS_20.get(term) != None: 
+                    GO_TERM_LISTS_20.get(term).append(str(sequence))
+
+                else: 
+                    GO_TERM_LISTS_20[term] = []
+                    GO_TERM_LISTS_20[term].append(str(sequence))
+        
+
+    flag = False
+    for term, seqeunces in GO_TERM_LISTS_80.items():
+        if len(seqeunces) > 10000:
+            flag = True
+
+    if flag: 
+        print("Saw something over 10k in training set")
+    else: 
+        print("cleaning successful")
+
+
+    flag = False
+    for term, seqeunces in GO_TERM_LISTS_20.items():
+        if len(seqeunces) > 10000:
+            flag = True
+
+    if flag: 
+        print("Saw something over 10k in test set")
+    else: 
+        print("cleaning successful")
+
+
+
+   return (GO_TERM_LISTS_80, GO_TERM_LISTS_20)
+
 '''
-data structure
-key: protein sequence -> string
-value: protein structure -> list of strings
-
+Write each go terms seqeunce to a new file in parentDir/DataForHMM
 '''
-UNIPROT = OrderedDict()
-
-raw_data = open(file_path, 'r').read().strip()
-raw_data = re.split('[|]+|\n+', raw_data)
-
-
-for i in range(0,len(raw_data), 2):
-    sequence = raw_data[i].replace(' ', '')
-    function = raw_data[i+1].split(" ")
-
-    UNIPROT[sequence] = function
-
-print("Done reading data...")
-
-list_dict_keys = list(UNIPROT.keys())
-#eightyPercent = random.sample(dict_keys, round(len(dict_keys)*.8)
-random.shuffle(list_dict_keys)
-eightyPercent = list_dict_keys[:round(len(list_dict_keys)*.8)]
-twentyPercent = list_dict_keys[len(eightyPercent):]
-
-with open('trainingEighty.txt', 'w') as file:
-    file.write(str(eightyPercent))
-
-with open('trainingTwenty.txt', 'w') as file:
-    file.write(str(twentyPercent))
-
-
-
-'''
-This function makes a dictionary: 
-    key -> GO Term
-    value -> list of sequences, no spaces currently
-'''
-GOTERMSLISTS = OrderedDict()
-
-for sequence in eightyPercent: 
-    terms = UNIPROT[sequence]
-    for term in terms: 
-        if GOTERMSLISTS.get(term) != None: 
-            GOTERMSLISTS.get(term).append(str(sequence))
-
-        else: 
-            GOTERMSLISTS[term] = []
-            GOTERMSLISTS[term].append(str(sequence))
-
-
-
-#for sequence, terms in UNIPROT.items():
-#    for term in terms: 
-#        if GOTERMSLISTS.get(term) != None: 
-#            GOTERMSLISTS.get(term).append(str(sequence))
+#try:
+#    os.mkdir(os.pardir + "/TrainingDataForHMM")
+#except: 
+#    print("Training folder already made")
 #
-#        else: 
-#            GOTERMSLISTS[term] = []
-#            GOTERMSLISTS[term].append(str(sequence))
+#try:
+#    os.mkdir(os.pardir + "/TestDataForHMM")
+#except: 
+#    print("Testing folder already made")
+#
+#for term, sequences in GO_TERM_LISTS_80.items():
+#    fileName = term + ".txt"
+#    with open(os.pardir + "/TrainingDataForHMM/" + fileName, 'w') as f:
+#        f.write(term + " > ")
+#        f.write('\n'.join(sequences))
+#
+#for term, sequences in GO_TERM_LISTS_20.items():
+#    fileName = term + ".txt"
+#    with open(os.pardir + "/TestDataForHMM/" + fileName, 'w') as f:
+#        f.write(term + " > ")
+#        f.write('\n'.join(sequences))
 
-#f= open("FULLDATANEW.txt", 'w')
-#f.write(str(GOTERMSLISTS))
-#f.close()
-
-
-#for goTERM, sequences in GOTERMSLISTS.items():
-#    print("GO term: {}, length of seqeunces: {}".format(goTERM, len(sequences)))
-#    #print("GO TERM: {}, seqeunces: {}".format(goTERM, sequences))
-#    time.sleep(2)
-
-'''
-
-
-This is temporary until we get better structure
-
-'''
-from hmmlearn import hmm
-
-curTerm = "BPSH"
-sequences = GOTERMSLISTS[curTerm]
-dataForHMM = np.array([])
-lengths = np.array([])
-for sequence in sequences: 
-    dataForHMM = np.append(dataForHMM, list(sequence))
-    lengths = np.append(lengths, len(sequence))
-
-print(dataForHMM.shape)
-print("lengs: {}".format(lengths))
-
-model = hmm.GaussianHMM(n_components=3, covariance_type='full', n_iter= 1000)
-
-model.fit(dataForHMM, lengths)
-
-
-
-
+#print("Done creating data to feed into HMM")
 
