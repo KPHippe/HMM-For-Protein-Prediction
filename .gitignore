@@ -1,4 +1,4 @@
 functionResource/ 
 PackageStudent/
 *.txt
-
+__pychace__/
