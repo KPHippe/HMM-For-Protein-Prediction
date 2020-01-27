@@ -35,6 +35,7 @@ def main():
     file that trains everything here
 
     '''
+    #only trains 100 models right now, can train all later
     trainModels.trainModels()
 
     '''
@@ -42,6 +43,40 @@ def main():
     something that predicts here
 
     '''
+
+#this is for the predictions, not working yet, main only works up until trainmodels
+def getTestSequences():
+    
+    try:
+        testingDataList = os.listdir(os.pardir + '/TrainingDataForHMM')
+    except:
+        print("Training data not present, please run parse data and convert data to create data")
+        sys.exit(0)
+
+
+    
+    testSequences = OrderedDict()
+    for filename in testingDataList: 
+        with open(os.pardir + "/TestDataForHMM/" + filename, "r") as f:
+            sequences = f.read().split('\n')
+        
+        dataForHMM = np.array([]) 
+        lengths = [] 
+
+        for sequence in sequences[:-1]:
+            tmpList = sequence.split('-')
+            for i in range(len(tmpList)):
+                tmpList[i] = int(tmpList[i])
+            
+            testSequences[filename] = tmpList
+            lengths.append(len(tmpList))
+
+        dataForHMM = dataForHMM.astype(np.float64)
+        dataForHMM = np.reshape(dataForHMM, (-1, 1))
+
+
+
+
 
 if __name__ == '__main__':
     main()
