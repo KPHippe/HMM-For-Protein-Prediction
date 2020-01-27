@@ -45,12 +45,6 @@ def parse():
     twentyPercent = list_dict_keys[len(eightyPercent):]
 
 
-    with open('trainingEighty.txt', 'w') as file:
-       file.write(str(eightyPercent))
-
-    with open('trainingTwenty.txt', 'w') as file:
-        file.write(str(twentyPercent))
-
 
     '''
     This function makes a dictionary: 

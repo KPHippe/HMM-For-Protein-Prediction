@@ -1,5 +1,6 @@
 import parseData
 import convertData
+import trainModels
 
 import sys
 import os
@@ -12,31 +13,35 @@ from tqdm import tqdm
 
 
 def main():
-    GO_TERM_LISTS = parseData.parse()
 
-    GO_TERM_LISTS_80 = GO_TERM_LISTS[0]
+    if not os.path.isdir(os.pardir + "/TrainingDataForHMM") and not os.path.isdir(os.pardir +
+            "/TestDataForHMM"):
 
-    GO_TERM_LISTS_20 = GO_TERM_LISTS[1]
+        GO_TERM_LISTS = parseData.parse()
 
-    '''
+        GO_TERM_LISTS_80 = GO_TERM_LISTS[0]
 
-    create all the files
+        GO_TERM_LISTS_20 = GO_TERM_LISTS[1]
 
-    '''
-    convertData.convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20)
-    sys.exit()
+        '''
+
+        create all the files
+
+        '''
+        convertData.convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20)
+        
     '''
     
     file that trains everything here
 
     '''
+    trainModels.trainModels()
 
     '''
     
     something that predicts here
 
     '''
-
 
 if __name__ == '__main__':
     main()
