@@ -30,7 +30,7 @@ def trainModels():
     i = 0
     for filename in tqdm(trainingDataList):
         HMMTrain(filename)
-        if i > 100:
+        if i > 3:
             sys.exit()
         i+=1
 
@@ -64,8 +64,9 @@ def HMMTrain(filename):
     model = hmm.GaussianHMM(n_components=1, covariance_type='full', n_iter=1000)
 
     model.fit(dataForHMM, lengths)
-    #randTest = np.random.rand(dataForHMM.shape[0], dataForHMM.shape[1])
-    #print("dataForHMM score: {} randomData score: {}".format(model.score(dataForHMM),model.score(randTest)))
+    randTest = np.random.rand(dataForHMM.shape[0], dataForHMM.shape[1])
+    print("Model: {} dataForHMM score: {} randomData score: {}".format(filename,
+        np.expm1(model.score(dataForHMM)),np.expm1(model.score(randTest))))
     
     #pickle the model 
     
