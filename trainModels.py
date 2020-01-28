@@ -4,8 +4,11 @@ from hmmlearn import hmm
 import pickle
 from tqdm import tqdm
 import numpy as np
-
-
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from multiprocessing import Pool
+import shutil
+#to time the different methods
+import timeit
 def trainModels():
 
     try:
@@ -27,13 +30,96 @@ def trainModels():
     
     
     #train models here
-    i = 0
+    #i = 0
+    print("Training with no optimization")
     for filename in tqdm(trainingDataList):
         HMMTrain(filename)
-        if i > 100:
-            sys.exit()
-        i+=1
+        #if i > 100:
+        #    sys.exit()
+        #i+=1
 
+'''
+This is the multiprocessed version of tranModels
+'''
+def trainModelsProcessPool():
+    #leave one full core for other things 
+    numCPUs = os.cpu_count() - 2
+    try:
+        trainingDataList = os.listdir(os.pardir + '/TrainingDataForHMM')
+    except:
+        print("Training data not present, please run parse data and convert data to create data")
+        sys.exit(0)
+
+
+    '''
+    # Making new folder for models
+    '''
+    try:
+        os.mkdir(os.pardir + "/HMMModels/")
+    except:
+        print("HMMModels folder already made")
+    
+    
+    #train models concurrently here
+    print("Training with ProcessPoolExecutor...") 
+    with ProcessPoolExecutor(max_workers=numCPUs) as executor:
+        executor.map(HMMTrain, trainingDataList)
+
+        '''Old stuff to try to get tqdm to work'''
+        #futures = [executor.submit(HMMTrain, filename) for filename in trainingDataList] 
+        
+        #kwargs = {
+        #    'total': len(futures),
+        #    'unit': 'it',
+        #    'unit_scale': True,
+        #    'leave': True
+        #}
+
+        #tqdm stuff here
+        #for f in tqdm(as_completed(futures), **kwargs):
+        #    pbar.update(1)    
+
+       
+'''
+This is the multiprocessed version of tranModels
+'''
+def trainModelsMultiprocessing():
+    '''Setup multiprocessing'''
+    #leave one full core for other things 
+    numCPUs = os.cpu_count() - 2
+    p = Pool(numCPUs)
+
+    try:
+        trainingDataList = os.listdir(os.pardir + '/TrainingDataForHMM')
+    except:
+        print("Training data not present, please run parse data and convert data to create data")
+        sys.exit(0)
+
+
+    '''
+    # Making new folder for models
+    '''
+    try:
+        os.mkdir(os.pardir + "/HMMModels/")
+    except:
+        print("HMMModels folder already made")
+    
+    
+    '''train models concurrently here'''
+    '''
+    Example: 
+    list(tqdm.tqdm(pool.imap_unordered(do_work, range(num_tasks)), total=len(values)))
+    ''' 
+    #pbar = tqdm(total=len(trainingDataList))
+    #execute trianing here
+    #p.map(HMMTrain, trainingDataList) #works but not quite what I want
+    print("Training using multiprocessing...")
+    list(tqdm(p.imap_unordered(HMMTrain, trainingDataList), total=len(trainingDataList)))
+
+    p.close()
+    p.join()
+    pbar.close() 
+    
 
 def HMMTrain(filename):
     #parse the data
@@ -72,12 +158,33 @@ def HMMTrain(filename):
     modelName = filename.split('.')[0] + ".mdl"
     with open(os.pardir + "/HMMModels/" + modelName, 'wb') as f:
         pickle.dump(model, f)
-
-
+    
+    #pbar.update(1)
 
 
 if __name__ == "__main__":
-    trainModels()
+
+    try: 
+        shutil.rmtree(os.pardir + "/HMMModels/")
+    except: 
+        pass
+    #time all the different methods
+    print("ProcessPool: {}".format(timeit.timeit(trainModelsProcessPool, number=1)))
+    try: 
+        shutil.rmtree(os.pardir + "/HMMModels/")
+    except: 
+        pass
+    
+    print("Multiprocessing: {}".format(timeit.timeit(trainModelsMultiprocessing, number=1)))
+   
+    try: 
+        shutil.rmtree(os.pardir + "/HMMModels/")
+    except: 
+        pass
+    
+    print("Linear: {}".format(timeit.timeit(trainModels, number=1)))
 
 
 
+    
+    
