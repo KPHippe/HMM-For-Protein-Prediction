@@ -37,7 +37,7 @@ def main():
     '''
     #only trains 100 models right now, can train all later
     trainModels.trainModels()
-
+    sys.exit()
     '''
     
     something that predicts here

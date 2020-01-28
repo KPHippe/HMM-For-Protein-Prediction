@@ -2,6 +2,37 @@ import os
 import re
 from tqdm import tqdm
 
+formatMap = {
+
+            "A": 1, 
+            "B": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "J": 10,
+            "K": 11,
+            "L": 12,
+            "M": 13,
+            "N": 14,
+            "O": 15,
+            "P": 16,
+            "Q": 17,
+            "R": 18,
+            "S": 19,
+            "T": 20,
+            "U": 21,
+            "V": 22,
+            "W": 23,
+            "X": 24,
+            "Y": 25,
+            "Z": 26,
+            " ": 27
+            }
+
 
 
 def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
@@ -34,7 +65,7 @@ def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
     for term, sequences in tqdm(GO_TERM_LISTS_20.items()):
         fileName = term + ".txt"
         with open(os.pardir + "/TestDataForHMM/" + fileName, 'w') as f:
-            seqeunceData = formatData(sequences)
+            sequenceData = formatData(sequences)
             for sequence in sequenceData:
                 f.write('-'.join(str(i) for i in sequence))
                 f.write('\n')
@@ -45,43 +76,7 @@ def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
     print("Done creating data to feed into HMM")
 
 def formatData(sequences):
-    formatMap = {
-
-            "A": 1, 
-            "B": 2,
-            "C": 3,
-            "D": 4,
-            "E": 5,
-            "F": 6,
-            "G": 7,
-            "H": 8,
-            "I": 9,
-            "J": 10,
-            "K": 11,
-            "L": 12,
-            "M": 13,
-            "N": 14,
-            "O": 15,
-            "P": 16,
-            "Q": 17,
-            "R": 18,
-            "S": 19,
-            "T": 20,
-            "U": 21,
-            "V": 22,
-            "W": 23,
-            "X": 24,
-            "Y": 25,
-            "Z": 26,
-            " ": 27
-            }
-
-    #with open('CNAT.txt') as file:
-     #   raw_data = file.read()
-     #  data = re.split('[ > ]+|\n+', raw_data)
-     #   # GoTerm is in first index, very last newline character is in last index
-     #   list_data = data[1:-1]
-
+    
     sequenceData = []
     for sequence in sequences:
         tmpList = []
@@ -89,12 +84,16 @@ def formatData(sequences):
             tmpList.append(formatMap[char])
         sequenceData.append(tmpList)
         
-    #with open("testDataForHMM.txt", 'w') as f: 
-    #    for sequence in sequenceData: 
-    #        f.write('-'.join(str(i) for i in sequence))
-    #        f.write('\n')
-
 
     return sequenceData
 
-
+'''
+takes a sequence in the form [A,B,C,D,E...,Z] and returns a list in the from [1,2,3,4,5...,26]
+'''
+def augmentDataToHMMForm(sequence):
+    pass
+'''
+Takes a sequence in the form [1,2,3,4,5...,26] and returns the list in the form [A,B,C,D,E,...,Z]
+'''
+def augmentDataFromHMMForm(sequence):
+    pass
