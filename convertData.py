@@ -1,8 +1,7 @@
 import os
-import re
 from tqdm import tqdm
 
-formatMap = {
+formatMap_LetToNum = {
 
             "A": 1, 
             "B": 2,
@@ -31,6 +30,37 @@ formatMap = {
             "Y": 25,
             "Z": 26,
             " ": 27
+            }
+
+formatMap_NumToLet = {
+
+             1 : "A",
+             2 : "B",
+             3 : "C",
+             4 : "D",
+             5 : "E",
+             6 : "F",
+             7 : "G",
+             8 : "H",
+             9 : "I",
+             10 : "J",
+             11 : "K",
+             12 : "L",
+             13 : "M",
+             14 : "N",
+             15 : "O",
+             16 : "P",
+             17 : "Q",
+             18 : "R",
+             19 : "S",
+             20 : "T",
+             21 : "U",
+             22 : "V",
+             23 : "W",
+             24 : "X",
+             25 : "Y",
+             26 : "Z",
+             27 : " "        
             }
 
 
@@ -81,7 +111,7 @@ def formatData(sequences):
     for sequence in sequences:
         tmpList = []
         for char in sequence:
-            tmpList.append(formatMap[char])
+            tmpList.append(formatMap_LetToNum[char])
         sequenceData.append(tmpList)
         
 
@@ -91,9 +121,20 @@ def formatData(sequences):
 takes a sequence in the form [A,B,C,D,E...,Z] and returns a list in the from [1,2,3,4,5...,26]
 '''
 def augmentDataToHMMForm(sequence):
-    pass
+    numSeq = []
+    for i in sequence:
+        #slowly builds the numSeqence,one num at a time as it corresponds to letter
+        numSeq.append(formatMap_LetToNum[i])
+        
+    return numSeq 
+
 '''
 Takes a sequence in the form [1,2,3,4,5...,26] and returns the list in the form [A,B,C,D,E,...,Z]
 '''
 def augmentDataFromHMMForm(sequence):
-    pass
+    letSeq = []
+    for i in sequence:
+        #slowly builds the numSeqence,one letter at a time as it corresponds to num
+        letSeq.append(formatMap_NumToLet[i])
+        
+    return letSeq
