@@ -65,6 +65,7 @@ def trainModelsProcessPool():
     with ProcessPoolExecutor(max_workers=numCPUs) as executor:
         executor.map(HMMTrain, trainingDataList)
 
+
         '''Old stuff to try to get tqdm to work'''
         #futures = [executor.submit(HMMTrain, filename) for filename in trainingDataList] 
         
@@ -95,6 +96,73 @@ def trainModelsMultiprocessing():
         print("Training data not present, please run parse data and convert data to create data")
         sys.exit(0)
 
+
+        '''Old stuff to try to get tqdm to work'''
+        #futures = [executor.submit(HMMTrain, filename) for filename in trainingDataList] 
+        
+        #kwargs = {
+        #    'total': len(futures),
+        #    'unit': 'it',
+        #    'unit_scale': True,
+        #    'leave': True
+        #}
+
+        #tqdm stuff here
+        #for f in tqdm(as_completed(futures), **kwargs):
+        #    pbar.update(1)    
+
+       
+'''
+This is the multiprocessed version of tranModels
+'''
+def trainModelsMultiprocessing():
+    '''Setup multiprocessing'''
+    #leave one full core for other things 
+    numCPUs = os.cpu_count() - 2
+    p = Pool(numCPUs)
+
+    try:
+        trainingDataList = os.listdir(os.pardir + '/TrainingDataForHMM')
+    except:
+        print("Training data not present, please run parse data and convert data to create data")
+        sys.exit(0)
+    '''
+    ##########################################
+    REMOVE THIS LATER
+    ##########################################
+    '''
+    try:
+        testingDataList = os.listdir(os.pardir + "/TestDataForHMM")
+    except: 
+        print("Testing data not present")
+        sys.exit()
+
+    '''
+    # Making new folder for models
+    '''
+    try:
+        os.mkdir(os.pardir + "/HMMModels/")
+    except:
+        print("HMMModels folder already made")
+    
+    
+    '''train models concurrently here'''
+    '''
+    Example: 
+    list(tqdm.tqdm(pool.imap_unordered(do_work, range(num_tasks)), total=len(values)))
+    ''' 
+    #pbar = tqdm(total=len(trainingDataList))
+    #execute trianing here
+    #p.map(HMMTrain, trainingDataList) #works but not quite what I want
+    print("Training using multiprocessing...")
+    #MAKE SURE TO CHANGE BACK TO TRAININGDATA WHEN DONE TESTING
+    list(tqdm(p.imap_unordered(HMMTrain, testingDataList),
+        total=len(testingDataList)))
+
+    p.close()
+    p.join()
+    pbar.close() 
+    
 
     '''
     # Making new folder for models
@@ -127,7 +195,8 @@ def HMMTrain(filename):
     model in '1-2-3-...-27' form
 
     '''
-    with open(os.pardir + "/TrainingDataForHMM/" + filename, "r") as f:
+    #MAKE SURE TO CHANGE WHEN DONE TESTING
+    with open(os.pardir + "/TestDataForHMM/" + filename, "r") as f:
         sequences = f.read().split('\n')
     
     dataForHMM = np.array([]) 
@@ -147,12 +216,11 @@ def HMMTrain(filename):
 
     #train the model
 
-    model = hmm.GaussianHMM(n_components=1, covariance_type='full', n_iter=1000)
+    model = hmm.GaussianHMM(n_components=10, covariance_type='full', n_iter=1000)
 
     model.fit(dataForHMM, lengths)
-    randTest = np.random.rand(dataForHMM.shape[0], dataForHMM.shape[1])
-    print("Model: {} dataForHMM score: {} randomData score: {}".format(filename,
-        np.expm1(model.score(dataForHMM)),np.expm1(model.score(randTest))))
+    #randTest = np.random.rand(dataForHMM.shape[0], dataForHMM.shape[1])
+    #print("dataForHMM score: {} randomData score: {}".format(model.score(dataForHMM),model.score(randTest)))
     
     #pickle the model 
     
@@ -186,6 +254,12 @@ if __name__ == "__main__":
     print("Linear: {}".format(timeit.timeit(trainModels, number=1)))
 
 
+    try: 
+        shutil.rmtree(os.pardir + "/HMMModels/")
+    except: 
+        pass
+    
+    #multiprocessing is the way to go here, it has tqdm and is just as fast
 
     
     
