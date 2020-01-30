@@ -1,4 +1,5 @@
 import os
+import re
 from tqdm import tqdm
 
 formatMap_LetToNum = {
@@ -29,7 +30,7 @@ formatMap_LetToNum = {
             "X": 24,
             "Y": 25,
             "Z": 26,
-            " ": 27
+            "^": 27
             }
 
 formatMap_NumToLet = {
@@ -60,9 +61,8 @@ formatMap_NumToLet = {
              24 : "X",
              25 : "Y",
              26 : "Z",
-             27 : " "        
+             27 : "^"        
             }
-
 
 
 def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
@@ -120,21 +120,42 @@ def formatData(sequences):
 '''
 takes a sequence in the form [A,B,C,D,E...,Z] and returns a list in the from [1,2,3,4,5...,26]
 '''
-def augmentDataToHMMForm(sequence):
+def augmentDataToHMMForm(sequences):
     numSeq = []
-    for i in sequence:
-        #slowly builds the numSeqence,one num at a time as it corresponds to letter
-        numSeq.append(formatMap_LetToNum[i])
+    for sequence in sequences:
+        tmpList = []
+        numSeq.append([formatMap_LetToNum[i] for i in sequence])
         
+        #numSeq.append(tmpList)
+    
     return numSeq 
-
 '''
 Takes a sequence in the form [1,2,3,4,5...,26] and returns the list in the form [A,B,C,D,E,...,Z]
 '''
-def augmentDataFromHMMForm(sequence):
+def augmentDataFromHMMForm(sequences):
     letSeq = []
-    for i in sequence:
-        #slowly builds the numSeqence,one letter at a time as it corresponds to num
-        letSeq.append(formatMap_NumToLet[i])
-        
+
+    for sequence in sequences:
+        tmpList = []
+        letSeq.append([formatMap_NumToLet[i] for i in sequence])
+        #letSeq.append(tmpList)
+    
     return letSeq
+
+'''
+Takes in a list of lists (each individual list has 1 float type with no
+explicitly known range ) and returns a list in the proper format (1 list of ints)
+'''
+def formatOutputFromHMM(output):
+    
+    correctlyFormattedOutput = []
+    for element in output:
+        #casting to int truncates towards 0 
+        intElement = int(element)
+        if intElement >= 1 and intElement <= 26:
+            correctlyFormattedOutput.append(intElement)
+
+        else: 
+            correctlyFormattedOutput.append(27)
+
+    return correctlyFormattedOutput

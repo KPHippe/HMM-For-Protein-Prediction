@@ -36,7 +36,7 @@ def main():
 
     '''
     #only trains 100 models right now, can train all later
-    trainModels.trainModels()
+    trainModels.trainModelsMultiprocessing()
     sys.exit()
     '''
     

@@ -63,6 +63,8 @@ def parse():
                 GOTERMSLISTS[term] = []
                 GOTERMSLISTS[term].append(str(sequence))
     bannedTerms = set()
+    bannedTerms.add("PRN")
+    bannedTerms.add("CON")
 
     for term, sequences in GOTERMSLISTS.items():
         if len(sequences) > 10000:
