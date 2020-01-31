@@ -111,11 +111,11 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
     futuresList = []
     #resultingTrainingData = {} # just to test my multiprocessing implementation
     with ProcessPoolExecutor(max_workers=(os.cpu_count() -2)) as executor: 
-        for term, sequences in GO_TERM_DICT_80.items():
+        for term, sequences in tqdm(GO_TERM_DICT_80.items()):
             future = executor.submit(multiProcessingAugmentation, term, sequences)
             futuresList.append(future)
 
-
+    print("Augmenting Data...")
     for future in futuresList:
         if future.done():
                 
