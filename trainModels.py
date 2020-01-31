@@ -18,8 +18,6 @@ def trainModels():
         sys.exit(0)
 
 
-    #print(",".join(trainingDataList))
-    #print(len(trainingDataList))
     '''
     # Making new folder for models
     '''
@@ -30,13 +28,11 @@ def trainModels():
     
     
     #train models here
-    #i = 0
+
     print("Training with no optimization")
     for filename in tqdm(trainingDataList):
         HMMTrain(filename)
-        #if i > 100:
-        #    sys.exit()
-        #i+=1
+
 
 '''
 This is the multiprocessed version of tranModels
@@ -65,19 +61,6 @@ def trainModelsProcessPool():
     with ProcessPoolExecutor(max_workers=numCPUs) as executor:
         executor.map(HMMTrain, trainingDataList)
 
-        '''Old stuff to try to get tqdm to work'''
-        #futures = [executor.submit(HMMTrain, filename) for filename in trainingDataList] 
-        
-        #kwargs = {
-        #    'total': len(futures),
-        #    'unit': 'it',
-        #    'unit_scale': True,
-        #    'leave': True
-        #}
-
-        #tqdm stuff here
-        #for f in tqdm(as_completed(futures), **kwargs):
-        #    pbar.update(1)    
 
        
 '''
@@ -94,16 +77,7 @@ def trainModelsMultiprocessing():
     except:
         print("Training data not present, please run parse data and convert data to create data")
         sys.exit(0)
-    '''
-    ##########################################
-    REMOVE THIS LATER
-    ##########################################
-    '''
-    try:
-        testingDataList = os.listdir(os.pardir + "/TestDataForHMM")
-    except: 
-        print("Testing data not present")
-        sys.exit()
+
 
     '''
     # Making new folder for models
@@ -119,17 +93,15 @@ def trainModelsMultiprocessing():
     Example: 
     list(tqdm.tqdm(pool.imap_unordered(do_work, range(num_tasks)), total=len(values)))
     ''' 
-    #pbar = tqdm(total=len(trainingDataList))
-    #execute trianing here
-    #p.map(HMMTrain, trainingDataList) #works but not quite what I want
+    
     print("Training using multiprocessing...")
-    #MAKE SURE TO CHANGE BACK TO TRAININGDATA WHEN DONE TESTING
+    
     list(tqdm(p.imap_unordered(HMMTrain, trainingDataList),
         total=len(trainingDataList)))
 
     p.close()
     p.join()
-    pbar.close() 
+ 
     
 
 def HMMTrain(filename):
@@ -162,8 +134,7 @@ def HMMTrain(filename):
     model = hmm.GaussianHMM(n_components=10, covariance_type='full', n_iter=1000)
 
     model.fit(dataForHMM, lengths)
-    #randTest = np.random.rand(dataForHMM.shape[0], dataForHMM.shape[1])
-    #print("dataForHMM score: {} randomData score: {}".format(model.score(dataForHMM),model.score(randTest)))
+
     
     #pickle the model 
     
@@ -182,6 +153,6 @@ if __name__ == "__main__":
     
     #multiprocessing is the way to go here, it has tqdm and is just as fast
 
-    trainModelsMultiprocessing()
+    trainModelsProcessPool()
     
     

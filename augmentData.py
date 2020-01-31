@@ -6,6 +6,8 @@ import math
 import convertData
 import copy
 import random
+import time
+
 '''
 augmentData takes a list of 1 or more seqeunces and uses an HMM to augment the data into a list of n
 sequences to unbias the training
@@ -34,7 +36,7 @@ def augmentData(sequences, n):
 
     '''Build hmm'''
 
-    model = hmm.GaussianHMM(n_components=5, covariance_type='full', n_iter=1000)
+    model = hmm.GaussianHMM(n_components=1, covariance_type='full', n_iter=1000)
     
     dataForHMM = np.array([])
     lengths = []
@@ -49,23 +51,19 @@ def augmentData(sequences, n):
 
     '''Sample HMM to build 'deep faked' data '''
     
-    nLengthSequence = random.sample([round(avgLengthOfSequences*.90), round(avgLengthOfSequences*1.10)], 1)[0]
-    
     for _ in range(len(sequences), n, 1):
         #sample the data from the model 
+        nLengthSequence = random.randint(round(avgLengthOfSequences*.90), round(avgLengthOfSequences*1.10)) 
         newData = model.sample(nLengthSequence)[0]
         convertedData = convertData.formatOutputFromHMM(newData)
-        #letterConvertedData = convertData.augmentDataFromHMMForm([convertedData])
-        #print(','.join(str(i) for i in sequences[0]))
-        #print(','.join(str(i) for i in letterConvertedData))
-        #sys.exit()
+
 
         #add the seqeunce to the new data
         newSequences.append(convertedData)
+
+        
     '''convert this list of seqeucnes'''
     newSequences = convertData.augmentDataFromHMMForm(newSequences)
-    print("this is what we are returning to parseData")
-    print(newSequences)
     return newSequences
 
     
@@ -78,19 +76,29 @@ if __name__ == '__main__':
 
     try: 
         baxs = open(os.pardir + "/TrainingDataForHMM/" + fileToGrab, 'r').read().split('-')
+        cuhn = open(os.pardir + "/TrainingDataForHMM/" + "CUHN.txt", 'r').read().split()
+
     except: 
         print(f"An error occured grabbing {fileToGrab}")
         sys.exit()
-    
+    print(cuhn)
+    sepcuhn = []
+    for seq in cuhn:
+        seq = seq.split("-")
+        sepcuhn.append(int(i) for i in seq)
     baxs = [int(i) for i in baxs]
     letterbaxs = convertData.augmentDataFromHMMForm([baxs])
-    
+    lettercuhn = convertData.augmentDataFromHMMForm(sepcuhn) 
+     
     #actually do the augmenting here
     augmentedSequences = []
     augmentedSequences = augmentData(letterbaxs, 10)
+    augmentedSequences = augmentData(lettercuhn, 100)
+    for seq in lettercuhn: 
+        print(" ".join(i for i in seq))
     print("This is the result of augmentData:")
-    print(augmentedSequences)
-        
+    for res in augmentedSequences:
+        print(" ".join(i for i in res))
 
 
-
+    

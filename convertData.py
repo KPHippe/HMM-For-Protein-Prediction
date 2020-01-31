@@ -89,8 +89,7 @@ def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
                 f.write('-'.join(str(i) for i in sequence))
                 f.write('\n')
                 
-            #f.write(term + " > ")
-            #f.write('\n'.join(sequences))
+
     print("\nWriting Test data to files...")
     for term, sequences in tqdm(GO_TERM_LISTS_20.items()):
         fileName = term + ".txt"
@@ -100,8 +99,7 @@ def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
                 f.write('-'.join(str(i) for i in sequence))
                 f.write('\n')
             
-            #f.write(term + " > ")
-            #f.write('\n'.join(sequences))
+
 
     print("Done creating data to feed into HMM")
 

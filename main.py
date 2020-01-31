@@ -1,6 +1,7 @@
 import parseData
 import convertData
 import trainModels
+import predict
 
 import sys
 import os
@@ -12,7 +13,39 @@ import random
 from tqdm import tqdm
 
 
-def main():
+def main(args):
+    '''
+    --predict 
+    #other args
+    1 -> path to test sequences
+    2 -> path to models 
+    3 -> path to output texts
+    --generateData
+    #not working yet 
+    --train
+    #not working yet 
+
+    '''
+
+    '''This is for sys.args processing'''
+    if("--predict") in args:
+        '''
+        Predict needs path to test sequences, path to models, path to output
+        '''
+        try: 
+            os.path.isdir(args[1])
+            os.path.isdir(args[2])
+            os.path.isdir(args[3])
+        except: 
+            print("A folder does not exist/is not a valid path\nPlease enter a valid path")
+            sys.exit()
+
+        predict.predict(args[1], args[2], args[3])
+    '''This ends sys.args processing'''
+    
+
+    
+
 
     if not os.path.isdir(os.pardir + "/TrainingDataForHMM") and not os.path.isdir(os.pardir +
             "/TestDataForHMM"):
@@ -32,51 +65,21 @@ def main():
         
     '''
     
-    file that trains everything here
-
-    '''
-    #only trains 100 models right now, can train all later
-    trainModels.trainModelsMultiprocessing()
-    sys.exit()
-    '''
-    
-    something that predicts here
+    Train all the models here
 
     '''
 
-#this is for the predictions, not working yet, main only works up until trainmodels
-def getTestSequences():
+    trainModels.trainModelsProcessPool()
+
+    '''
     
-    try:
-        testingDataList = os.listdir(os.pardir + '/TrainingDataForHMM')
-    except:
-        print("Training data not present, please run parse data and convert data to create data")
-        sys.exit(0)
+    Prediction calculations here
 
-
-    
-    testSequences = OrderedDict()
-    for filename in testingDataList: 
-        with open(os.pardir + "/TestDataForHMM/" + filename, "r") as f:
-            sequences = f.read().split('\n')
-        
-        dataForHMM = np.array([]) 
-        lengths = [] 
-
-        for sequence in sequences[:-1]:
-            tmpList = sequence.split('-')
-            for i in range(len(tmpList)):
-                tmpList[i] = int(tmpList[i])
-            
-            testSequences[filename] = tmpList
-            lengths.append(len(tmpList))
-
-        dataForHMM = dataForHMM.astype(np.float64)
-        dataForHMM = np.reshape(dataForHMM, (-1, 1))
-
+    '''
+    predict.predict(args[1], args[2], args[3])
 
 
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

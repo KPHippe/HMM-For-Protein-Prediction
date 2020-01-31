@@ -5,7 +5,9 @@ import re
 from collections import OrderedDict
 import numpy as np
 import random
+from tqdm import tqdm 
 
+import augmentData
 def parse():
 
     file_path = os.pardir + "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
@@ -51,78 +53,85 @@ def parse():
         key -> GO Term
         value -> list of sequences
     '''
-    GOTERMSLISTS = {} 
+    GOTERMSDICT = {} 
 
     for sequence in list(UNIPROT.keys()): 
         terms = UNIPROT[sequence]
         for term in terms: 
-            if GOTERMSLISTS.get(term) != None: 
-                GOTERMSLISTS.get(term).append(str(sequence))
+            if GOTERMSDICT.get(term) != None: 
+                GOTERMSDICT.get(term).append(str(sequence))
 
             else: 
-                GOTERMSLISTS[term] = []
-                GOTERMSLISTS[term].append(str(sequence))
+                GOTERMSDICT[term] = []
+                GOTERMSDICT[term].append(str(sequence))
     bannedTerms = set()
     bannedTerms.add("PRN")
-    bannedTerms.add("CON")
+    #######
+    # might need to ban PRN.txt
 
-    for term, sequences in GOTERMSLISTS.items():
-        if len(sequences) > 10000:
-            bannedTerms.add(term)
+    # for term, sequences in GOTERMSLISTS.items():
+    #     if len(sequences) > 10000:
+    #         bannedTerms.add(term)
 
-    GO_TERM_LISTS_80 = OrderedDict()
-    GO_TERM_LISTS_20 = OrderedDict()
+    GO_TERM_DICT_80 = OrderedDict()
+    GO_TERM_DICT_20 = OrderedDict()
 
     for sequence in eightyPercent: 
         terms = UNIPROT[sequence]
         for term in terms:
+            # TODO 
+            # temporairly removed bannedTerms because we have a delimitter on # sequences
             if term not in bannedTerms:
 
-                if GO_TERM_LISTS_80.get(term) != None: 
-                    GO_TERM_LISTS_80.get(term).append(str(sequence))
+                if GO_TERM_DICT_80.get(term) != None: 
+                    GO_TERM_DICT_80.get(term).append(str(sequence))
 
                 else: 
-                    GO_TERM_LISTS_80[term] = []
-                    GO_TERM_LISTS_80[term].append(str(sequence))
+                    GO_TERM_DICT_80[term] = []
+                    GO_TERM_DICT_80[term].append(str(sequence))
            
            
     for sequence in twentyPercent: 
         terms = UNIPROT[sequence]
         for term in terms:
+            # TODO 
+            # temporairly removed bannedTerms because we have a delimitter on # sequences
             if term not in bannedTerms:
 
-                if GO_TERM_LISTS_20.get(term) != None: 
-                    GO_TERM_LISTS_20.get(term).append(str(sequence))
+                if GO_TERM_DICT_20.get(term) != None: 
+                    GO_TERM_DICT_20.get(term).append(str(sequence))
 
                 else: 
-                    GO_TERM_LISTS_20[term] = []
-                    GO_TERM_LISTS_20[term].append(str(sequence))
+                    GO_TERM_DICT_20[term] = []
+                    GO_TERM_DICT_20[term].append(str(sequence))
         
+    # TODO this is the new GO_TERM_LISTS_80 that has been shuffled and randomly 100 selected
+    training_dict_100 = {}
+    testing_dict_100 = {}
+    
+    # limit sequences to 100 for each goTerm
+    for term, sequences in tqdm(GO_TERM_DICT_80.items()):
+        if len(sequences) >= 100:
+            training_list_100 = random.sample(sequences, 100)
+            training_dict_100[term] = training_list_100
+        else:
+            # TODO 
+            # augmentData()
+            training_dict_100[term] = augmentData.augmentData(sequences, 100) 
 
-    flag = False
-    for term, seqeunces in GO_TERM_LISTS_80.items():
-        if len(seqeunces) > 10000:
-            flag = True
+    for term, sequences in GO_TERM_DICT_20.items():
+        if len(sequences) >= 100:
+            testing_list_100 = random.sample(sequences, 100)
+            testing_dict_100[term] = testing_list_100
+        else:
+            # TODO 
+            # augmentData()
+            testing_dict_100[term] = sequences 
+            
 
-    if flag: 
-        print("Saw something over 10k in training set")
-    else: 
-        print("cleaning successful")
-
-
-    flag = False
-    for term, seqeunces in GO_TERM_LISTS_20.items():
-        if len(seqeunces) > 10000:
-            flag = True
-
-    if flag: 
-        print("Saw something over 10k in test set")
-    else: 
-        print("cleaning successful")
-
-
-
-    return (GO_TERM_LISTS_80, GO_TERM_LISTS_20)
+    print("Done with parseData")
+    # return (training_dict_100, GO_TERM_DICT_20)
+    return (training_dict_100, testing_dict_100)
 
 '''
 Write each go terms seqeunce to a new file in parentDir/DataForHMM
@@ -151,3 +160,12 @@ Write each go terms seqeunce to a new file in parentDir/DataForHMM
 
 #print("Done creating data to feed into HMM")
 
+'''
+This method will iterate through each GoTerm and for terms that have greater than 100 sequences
+will randomly select 100. For GoTerms with less than 100 sequences this method will use an HMM
+to create/predict additional sequences (up to the limit 100)
+'''
+if __name__ == "__main__":
+
+    parse()
+    sys.exit()

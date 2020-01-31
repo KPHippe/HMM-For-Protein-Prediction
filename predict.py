@@ -8,7 +8,7 @@ import copy
 
 import readSelected
 import convertData
-def loadModels():
+def loadModels(pathToModels):
     '''
     Key -> model name
     value -> model
@@ -18,7 +18,7 @@ def loadModels():
    
     #MAKE SURE TO CHANGE BACK TO HMMModels ONCE DEMO DONE
     try:
-        modelFiles = os.listdir(os.pardir + "/DEMOMODELS/3DegreeModels")
+        modelFiles = os.listdir(pathToModels)
     except: 
         print("HMMModels folder does not exist")
         sys.exit()
@@ -27,55 +27,53 @@ def loadModels():
     
     for fileName in modelFiles:
         goTermName = fileName.split('.')[0]
-        #MAKE SURE TO CHANGE BACK TO HMMModels ONCE DEMO DONE
-        model = pickle.load(open(os.pardir + "/DEMOMODELS/3DegreeModels/" + fileName, 'rb'))
+        model = pickle.load(open(pathToModels + fileName, 'rb'))
         models[goTermName] = model
 
-    #for term, model in models.items():
-    #    print("{}, and has model: {}".format(term, model != None))
 
     return models
 
-def predict(sequences):
-    models = loadModels()
+def predict(pathToTest, pathToModels, pathToOutput):
+    models = loadModels(pathToModels)
     
-    #for sequence in sequences: 
-    #    print(sequence)
-    #print(len(models))
      
     '''
     Load test data
     '''
     #returns a dict key -> sequence id value -> sequence
-    selected10Fasta = readSelected.readFasta(os.pardir + "/PackageStudent/data/Selected10Data/")
+    selected10Fasta = readSelected.readFasta(pathToTest)
     dataToTest = {}
     for protID, sequence in selected10Fasta.items():
         dataToTest[protID] = convertData.augmentDataToHMMForm([sequence])
 
 
-    #dataToTest = OrderedDict()
-    #for fileName in sequences:
-    #    #load the sequence and change it into a list
-    #    goTerm = fileName.split(".")[0]
-    #    rawData = open(os.pardir + "/TestDataForHMM/" + fileName, "r").read().split('\n')
-    #    #limit raw data to only have 1 index, remove later
-    #    rawData = rawData[0:1]
-    #    #print(rawData)
-        
-        
-    #    for sequence in rawData:
-    #        sequence = sequence.split("-")
-    #        if dataToTest.get(goTerm) != None:
-    #            dataToTest[goTerm].append([int(i) for i in sequence])
-    #        else:
-    #            dataToTest[goTerm] = ([int(i) for i in sequence])
 
     '''
     Run our seqeunces through the model
     '''
     #THIS IS TEMPORARY FOR THE DEMO
-    dict_of_protID_and_goTerm = readSelected.getSelectedGroundTruths(os.pardir +"/PackageStudent/data/Selected10Data/groundtruth/")
+    try: 
+        dict_of_protID_and_goTerm = readSelected.getSelectedGroundTruths(os.pardir+"/Competition50Targets/groundtruth/")
+    except: 
+        print("No ground truths found...")
+    
+
     goTERM_to_ID =  readSelected.establishGOIDtoTermRelations(os.pardir +"/functionResource/data/")[1] 
+
+    '''
+    Establish output file with correct header 
+
+    '''
+    try: 
+        os.mkdir(pathToOutput.split(":")[0] +"/")
+    except: 
+        print(f"{pathToOutput} folder already made...")
+
+    with open(pathToOutput.split(":")[0] + "/" + pathToOutput.split(":")[1], 'a+') as f: 
+        f.write("AUTHOR\tTeam Reshape Your Data\n")
+        f.write("MODEL\tHidden Markov Model\n")
+        f.write("KEYWORDS\tHidden Markov Model, machine learning\n")
+        f.write("Sequence\tGO ID's\tConfidence\n")
 
     for protID, sequence in (dataToTest.items()):
         #key -> gotermfilename from test data
@@ -92,104 +90,55 @@ def predict(sequences):
 
 
             score = model.score(dataToFeedIntoHMM)
-
-            scores[label] = score
+            randData = np.random.rand(dataToFeedIntoHMM.shape[0], dataToFeedIntoHMM.shape[1])
+            randScore = model.score(randData)
+            scores[label] = (score, randScore)
+        
+        sortedScores = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
+        '''Save Results to file'''
+        writeResultsToFile(protID, sortedScores, goTERM_to_ID, pathToOutput) 
 
         print("*"*40)
-        print("Twe are testing {} from testing label".format(protID))
-        print("sequence go IDS {}".format([pID for pID in
-            dict_of_protID_and_goTerm[protID[1:]]]))
-        sortedScores = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
-        for label, score in sortedScores[:25]:
-            print("{} score: {}".format(goTERM_to_ID[label], score))
+        print("We are testing {} from CompetitoinTargets".format(protID[1:]))
+        try: 
+            print("sequence go IDS {}".format([pID for pID in dict_of_protID_and_goTerm[protID[1:]]]))
+        except: 
+            pass
+        for label, scores in sortedScores[:25]:
+            print("{} score: {} randomSequence score: {}".format(goTERM_to_ID[label], scores[0], scores[1]))
             if label == protID:
                 print('-'*30)
         print("*"*40)
 
-    '''
-    Save some results to file same format as CaoSelectedData
+    '''Terminate the file with END keyword'''
+    with open(pathToOutput.split(":")[0] + "/" + pathToOutput.split(":")[1], 'a+') as f: 
+        f.write("END")
 
-    '''
 
-    #for term, sequence in dataToTest.items():
-    #    #start working on scores here
-    #    #key -> goterm
-    #    #value -> score given by model
-    #    scores = OrderedDict()
-    #    for label, model in models.items():
-    #        sequence = [sequence]
-    #        sequence = np.array([sequence])
-    #        sequence = np.reshape(-1,1)
-    #        print("sequence:")
-    #        print(sequence)
-    #        scores[label] = model.score(sequence)
-        
-        
-    #    print("Original term {}".format(term))
-    #    for goTerm, score in scores.items():
-    #        print("Model {} score: {}".format(goTerm, score))
 
+def writeResultsToFile(protID, scores, goTerm_to_ID, pathToOutput):
+     
+    try:
+
+        fileName = pathToOutput.split(":")[1]
+    except:
+        print("Invalid output file path, or name...")
+        sys.exit()
+    try: 
+        os.mkdir(pathToOutput.split(":")[0] +"/")
+    except: 
+        print(f"{pathToOutput} folder already made...")
+
+    
+    with open(pathToOutput.split(":")[0] + "/" + fileName, 'a+') as f: 
+        for goTerm,score in scores[:1000]: 
+            f.write(f"{protID[1:]}\t{goTerm_to_ID[goTerm]}\t{str(score[0])}")    
+            f.write("\n")
 
 
 
 if __name__ == "__main__":
     
-    predict(None)
+    predict(sys.argv[1],sys.argv[2], sys.argv[3])
     sys.exit()
     
-    
-    testSequencesFileNames = []
-    testSequences = {} 
-
-    try:
-        testSequencesFileNames = os.listdir(os.pardir + "/TestDataForHMM")
-    except: 
-        print("No testing data found... Aborting...")
-        sys.exit()
-    
-    
-    predict(testSequencesFileNames)
-    sys.exit()
-
-    '''
-    This is for testing on our 11 models we have already trainedi
-    NO CJEE, NO RX0 
-    '''
-    shitToPassToPredict = [
-            "BIUL.txt",
-            "BWME.txt",
-            "BWON.txt",
-            "CHTZ.txt",
-            "CTIR.txt",
-            "CUJC.txt",
-            "CXGV.txt",
-            "MRH.txt",
-            "YNZ.txt"
-        ]
-
-    trainedExamplesNames = [] 
-    #try:
-    #    trainedExamplesNames = os.listdir(os.pardir + "/HMMModels")
-    #except: 
-    #    print("No models found... Aborting...")
-    #    sys.exit()
-    
-    #for fileName in trainedExamplesNames:
-    #    name = filename.split('.')[0]
-
-        
-
-
-
-    #for i in range(5):
-    #    fileName = testSequencesFileNames[i]
-    #    sequence = open(os.pardir + "/TestDataForHMM/" + fileName, "r").read().split("-")
-    #    term = filename.split(".")[0]
-
-    #    testSequences[term] = seqeunce
-    
-
-
-
-    predict(shitToPassToPredict)
-    sys.exit()
