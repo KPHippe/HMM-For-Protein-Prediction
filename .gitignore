@@ -2,3 +2,4 @@ functionResource/
 PackageStudent/
 *.txt
 __pychace__/
+*.py.swp

@@ -64,7 +64,7 @@ def main(args):
 
         trainModels.trainModelsProcessPool(args[1], args[2])
     """
-
+    Argument order is /pathToInput, pathToTrainingData, pathtotesting
     """
     if("--make") in args:
         try: 
@@ -75,8 +75,14 @@ def main(args):
         except: 
             print("--make requires these three arguments:\nA path_to_input_data, a path_to_training_data, a path_to_testing_data")
             sys.exit()
-        
-        parseData.parse(args[1], args[2], args[3])
+        #do the making of data here
+        GO_TERMS_TRAINING_AND_TESTING  = parseData.parse(args[1], args[2], args[3]) #list of two dictionaries, 80 first, 20 second
+        GO_TERM_LISTS_80 = GO_TERMS_TRAINING_AND_TESTING[0]
+        GO_TERM_LISTS_20 = GO_TERMS_TRAINING_AND_TESTING[1]
+
+        convertData.convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20, args[2], args[3])
+        print("Done making data...")
+
 
     if("--all") in args:
         are_you_sure = input(print("Creating everything from scratch, are you sure? [Y/N]"))

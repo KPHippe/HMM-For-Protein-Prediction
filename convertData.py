@@ -65,25 +65,25 @@ formatMap_NumToLet = {
             }
 
 
-def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
+def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20, path_to_training, path_to_test):
 
     '''
     Write each go terms seqeunce to a new file in parentDir/DataForHMM
     '''
     try:
-        os.mkdir(os.pardir + "/TrainingDataForHMM")
+        os.mkdir(path_to_training)
     except: 
         print("Training folder already made")
 
     try:
-        os.mkdir(os.pardir + "/TestDataForHMM")
+        os.mkdir(path_to_test)
     except: 
         print("Testing folder already made")
     
     print("\nWriting training data to files...")
     for term, sequences in tqdm(GO_TERM_LISTS_80.items()):
         fileName = term + ".txt"
-        with open(os.pardir + "/TrainingDataForHMM/" + fileName, 'w') as f:
+        with open(path_to_training + fileName, 'w') as f:
             sequenceData = formatData(sequences)
             for sequence in sequenceData:
                 f.write('-'.join(str(i) for i in sequence))
@@ -93,7 +93,7 @@ def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
     print("\nWriting Test data to files...")
     for term, sequences in tqdm(GO_TERM_LISTS_20.items()):
         fileName = term + ".txt"
-        with open(os.pardir + "/TestDataForHMM/" + fileName, 'w') as f:
+        with open(path_to_test + fileName, 'w') as f:
             sequenceData = formatData(sequences)
             for sequence in sequenceData:
                 f.write('-'.join(str(i) for i in sequence))
@@ -102,6 +102,7 @@ def convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20):
 
 
     print("Done creating data to feed into HMM")
+    
 
 def formatData(sequences):
     

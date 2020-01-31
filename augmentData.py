@@ -36,7 +36,7 @@ def augmentData(sequences, n):
 
     '''Build hmm'''
 
-    model = hmm.GaussianHMM(n_components=1, covariance_type='full', n_iter=1000)
+    model = hmm.GaussianHMM(n_components=5, covariance_type='full', n_iter=1000)
     
     dataForHMM = np.array([])
     lengths = []

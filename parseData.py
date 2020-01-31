@@ -3,6 +3,7 @@ import os
 import time
 import re
 from collections import OrderedDict
+from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 import random
 from tqdm import tqdm 
@@ -66,9 +67,9 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
     
     # BANNED TERMS HERE!
     bannedTerms = set()
-    bannedTerms.add("PRN")
-    bannedTerms.add("CON")
-    bannedTerms.add("NUL")
+    #bannedTerms.add("PRN")
+    #bannedTerms.add("CON")
+    #bannedTerms.add("NUL")
 
     GO_TERM_DICT_80 = OrderedDict()
     GO_TERM_DICT_20 = OrderedDict()
@@ -107,14 +108,20 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
     testing_dict_100 = {}
     
     # limit sequences to 100 for each goTerm
-    for term, sequences in tqdm(GO_TERM_DICT_80.items()):
-        if len(sequences) >= 100:
-            training_list_100 = random.sample(sequences, 100)
-            training_dict_100[term] = training_list_100
-        else:
-            # TODO 
-            # augmentData()
-            training_dict_100[term] = augmentData.augmentData(sequences, 100) 
+    futuresList = []
+    #resultingTrainingData = {} # just to test my multiprocessing implementation
+    with ProcessPoolExecutor(max_workers=(os.cpu_count() -2)) as executor: 
+        for term, sequences in GO_TERM_DICT_80.items():
+            future = executor.submit(multiProcessingAugmentation, term, sequences)
+            futuresList.append(future)
+
+
+    for future in futuresList:
+        if future.done():
+                
+            result = future.result()    
+            training_dict_100[result[0]] = result[1]
+    print(f"Length of training dictionary:  {len(training_dict_100)}")
 
     for term, sequences in GO_TERM_DICT_20.items():
         if len(sequences) >= 100:
@@ -126,44 +133,37 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
             testing_dict_100[term] = sequences 
             
 
-    print("Done with parseData, writing files to locations...")
-    # UPDATE WITH INCREASE IN SEQUQNCES PER GO TERM. 100 REPRESENTS 100 SEQ
-    train_file = open(path_to_train_data, "w")
-    train_file.writelines(training_dict_100)
-    train_file.close()
 
-    testing_file = open(path_to_test_data, "w")
-    testing_file.writelines(testing_dict_100)
-    train_file.close()
+
+    # print("Done with parseData, writing files to locations...")
+    # # UPDATE WITH INCREASE IN SEQUQNCES PER GO TERM. 100 REPRESENTS 100 SEQ
+    # train_file = open(path_to_train_data, "w")
+    # train_file.writelines(training_dict_100)
+    # train_file.close()
+
+    # testing_file = open(path_to_test_data, "w")
+    # testing_file.writelines(testing_dict_100)
+    # train_file.close()
 
     return (training_dict_100, testing_dict_100)
 
-'''
-Write each go terms seqeunce to a new file in parentDir/DataForHMM
-'''
-#try:
-#    os.mkdir(os.pardir + "/TrainingDataForHMM")
-#except: 
-#    print("Training folder already made")
-#
-#try:
-#    os.mkdir(os.pardir + "/TestDataForHMM")
-#except: 
-#    print("Testing folder already made")
-#
-#for term, sequences in GO_TERM_LISTS_80.items():
-#    fileName = term + ".txt"
-#    with open(os.pardir + "/TrainingDataForHMM/" + fileName, 'w') as f:
-#        f.write(term + " > ")
-#        f.write('\n'.join(sequences))
-#
-#for term, sequences in GO_TERM_LISTS_20.items():
-#    fileName = term + ".txt"
-#    with open(os.pardir + "/TestDataForHMM/" + fileName, 'w') as f:
-#        f.write(term + " > ")
-#        f.write('\n'.join(sequences))
+def multiProcessingAugmentation(term, sequences):
+    #print(f"inside augmentMulitProcessing, {term} len sequences: {len(sequences)}")
+    result = None
+    #print(f"inside multiProcessingAugmentation term: {term} len of sequences: {len(sequences)}")
+    if len(sequences) >= 100:
+        training_list_100 = random.sample(sequences, 100)
+        result = (term, training_list_100)
+    else:
+        # TODO 
+        """UNCOMMENTTHISLINE TO ENABE AUGMENTDATA TO ACTUALLY RUN"""
+        training_list_100 = augmentData.augmentData(sequences, 100)
+        #training_list_100 = sequences
+        result = (term, training_list_100)
+    #print(f"result is: {','.join(str(i) for i in result)}")
+    return result
 
-#print("Done creating data to feed into HMM")
+
 
 '''
 This method will iterate through each GoTerm and for terms that have greater than 100 sequences
