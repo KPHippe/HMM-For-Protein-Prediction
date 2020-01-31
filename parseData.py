@@ -8,12 +8,11 @@ import random
 from tqdm import tqdm 
 
 import augmentData
-def parse():
+def parse(path_to_input_data, path_to_train_data, path_to_test_data):
 
-    file_path = os.pardir + "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
+    # file_path = os.pardir + "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
+    file_path = path_to_input_data
 
-    if len(sys.argv) > 1:
-        file_path = os.curdir + sys.argv[1]
     '''
     Read in our data, store it in UNIPROT
 
@@ -64,14 +63,12 @@ def parse():
             else: 
                 GOTERMSDICT[term] = []
                 GOTERMSDICT[term].append(str(sequence))
+    
+    # BANNED TERMS HERE!
     bannedTerms = set()
     bannedTerms.add("PRN")
-    #######
-    # might need to ban PRN.txt
-
-    # for term, sequences in GOTERMSLISTS.items():
-    #     if len(sequences) > 10000:
-    #         bannedTerms.add(term)
+    bannedTerms.add("CON")
+    bannedTerms.add("NUL")
 
     GO_TERM_DICT_80 = OrderedDict()
     GO_TERM_DICT_20 = OrderedDict()
@@ -129,8 +126,16 @@ def parse():
             testing_dict_100[term] = sequences 
             
 
-    print("Done with parseData")
-    # return (training_dict_100, GO_TERM_DICT_20)
+    print("Done with parseData, writing files to locations...")
+    # UPDATE WITH INCREASE IN SEQUQNCES PER GO TERM. 100 REPRESENTS 100 SEQ
+    train_file = open(path_to_train_data, "w")
+    train_file.writelines(training_dict_100)
+    train_file.close()
+
+    testing_file = open(path_to_test_data, "w")
+    testing_file.writelines(testing_dict_100)
+    train_file.close()
+
     return (training_dict_100, testing_dict_100)
 
 '''
@@ -167,5 +172,5 @@ to create/predict additional sequences (up to the limit 100)
 '''
 if __name__ == "__main__":
 
-    parse()
+    #parse("","","")
     sys.exit()

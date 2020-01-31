@@ -23,7 +23,6 @@ def loadModels(pathToModels):
         print("HMMModels folder does not exist")
         sys.exit()
 
-    #print(','.join(modelFiles))
     
     for fileName in modelFiles:
         goTermName = fileName.split('.')[0]
@@ -35,7 +34,6 @@ def loadModels(pathToModels):
 
 def predict(pathToTest, pathToModels, pathToOutput):
     models = loadModels(pathToModels)
-    
      
     '''
     Load test data
@@ -45,8 +43,6 @@ def predict(pathToTest, pathToModels, pathToOutput):
     dataToTest = {}
     for protID, sequence in selected10Fasta.items():
         dataToTest[protID] = convertData.augmentDataToHMMForm([sequence])
-
-
 
     '''
     Run our seqeunces through the model
@@ -90,9 +86,9 @@ def predict(pathToTest, pathToModels, pathToOutput):
 
 
             score = model.score(dataToFeedIntoHMM)
-            randData = np.random.rand(dataToFeedIntoHMM.shape[0], dataToFeedIntoHMM.shape[1])
-            randScore = model.score(randData)
-            scores[label] = (score, randScore)
+            #RESHAPE THE SCORE HERE TODO
+            
+            scores[label] = score
         
         sortedScores = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
         '''Save Results to file'''
@@ -104,8 +100,8 @@ def predict(pathToTest, pathToModels, pathToOutput):
             print("sequence go IDS {}".format([pID for pID in dict_of_protID_and_goTerm[protID[1:]]]))
         except: 
             pass
-        for label, scores in sortedScores[:25]:
-            print("{} score: {} randomSequence score: {}".format(goTERM_to_ID[label], scores[0], scores[1]))
+        for label, score in sortedScores[:25]:
+            print("{} score: {} randomSequence score: {}".format(goTERM_to_ID[label], score))
             if label == protID:
                 print('-'*30)
         print("*"*40)
@@ -132,7 +128,7 @@ def writeResultsToFile(protID, scores, goTerm_to_ID, pathToOutput):
     
     with open(pathToOutput.split(":")[0] + "/" + fileName, 'a+') as f: 
         for goTerm,score in scores[:1000]: 
-            f.write(f"{protID[1:]}\t{goTerm_to_ID[goTerm]}\t{str(score[0])}")    
+            f.write(f"{protID[1:]}\t{goTerm_to_ID[goTerm]}\t{str(score)}")    
             f.write("\n")
 
 

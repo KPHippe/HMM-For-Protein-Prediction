@@ -62,13 +62,10 @@ def establishGOIDtoTermRelations(pathToFile):
     goTerm_to_ID_dict = {}
     with open(pathToFile + 'F_3_GO_table.DAT', 'r') as f:
         f = f.read().strip()
-
         f = re.split('[\s]+', f)
 
         goID_to_term_dict = {f[i]: f[i + 1] for i in range(0, len(f), 2)}
         goTerm_to_ID_dict = {f[i+1]: f[i] for i in range(0, len(f), 2)}
-
-
 
         #need to have these structures persist onece this mehtod is called
         #return ID to Term first index, Term to ID second index

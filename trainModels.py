@@ -37,32 +37,27 @@ def trainModels():
 '''
 This is the multiprocessed version of tranModels
 '''
-def trainModelsProcessPool():
+def trainModelsProcessPool(path_to_training_file, path_to_model_save):
     #leave one full core for other things 
     numCPUs = os.cpu_count() - 2
-    try:
-        trainingDataList = os.listdir(os.pardir + '/TrainingDataForHMM')
-    except:
-        print("Training data not present, please run parse data and convert data to create data")
-        sys.exit(0)
-
-
+    
+    trainingDataList = os.listdir(path_to_training_file)
+    pathsLists = [path_to_training_file] *len(trainingDataList)
+    print(pathsLists[0])
+    
     '''
     # Making new folder for models
     '''
     try:
-        os.mkdir(os.pardir + "/HMMModels/")
+        os.mkdir(path_to_model_save + "/HMMModels/")
     except:
         print("HMMModels folder already made")
-    
     
     #train models concurrently here
     print("Training with ProcessPoolExecutor...") 
     with ProcessPoolExecutor(max_workers=numCPUs) as executor:
-        executor.map(HMMTrain, trainingDataList)
-
-
-       
+        executor.map(HMMTrain, trainingDataList, pathsLists)
+   
 '''
 This is the multiprocessed version of tranModels
 '''
@@ -104,14 +99,14 @@ def trainModelsMultiprocessing():
  
     
 
-def HMMTrain(filename):
+def HMMTrain(filename, path_to_training_file):
     #parse the data
     '''
     model in '1-2-3-...-27' form
 
     '''
     #MAKE SURE TO CHANGE WHEN DONE TESTING
-    with open(os.pardir + "/TrainingDataForHMM/" + filename, "r") as f:
+    with open(path_to_training_file + filename, "r") as f:
         sequences = f.read().split('\n')
     
     dataForHMM = np.array([]) 
@@ -130,17 +125,14 @@ def HMMTrain(filename):
 
 
     #train the model
-
-    model = hmm.GaussianHMM(n_components=10, covariance_type='full', n_iter=1000)
-
+    model = hmm.GaussianHMM(n_components=1, covariance_type='full', tol=0.001, n_iter=1000)
     model.fit(dataForHMM, lengths)
 
-    
     #pickle the model 
-    
     modelName = filename.split('.')[0] + ".mdl"
-    with open(os.pardir + "/HMMModels/" + modelName, 'wb') as f:
+    with open(path_to_training_file + os.pardir + "/HMMModels/" + modelName, 'wb') as f:
         pickle.dump(model, f)
+
     
 
 
@@ -152,7 +144,6 @@ if __name__ == "__main__":
         pass
     
     #multiprocessing is the way to go here, it has tqdm and is just as fast
-
-    trainModelsProcessPool()
+    # trainModelsProcessPool()
     
     
