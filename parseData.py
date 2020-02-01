@@ -160,7 +160,7 @@ def multiProcessingAugmentation(term, sequences):
         training_list_100 = augmentData.augmentData(sequences, 100)
         #training_list_100 = sequences
         result = (term, training_list_100)
-    #print(f"result is: {','.join(str(i) for i in result)}")
+    print(f"result is: {','.join(str(i) for i in result)}")
     return result
 
 

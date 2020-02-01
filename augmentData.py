@@ -64,6 +64,7 @@ def augmentData(sequences, n):
         
     '''convert this list of seqeucnes'''
     newSequences = convertData.augmentDataFromHMMForm(newSequences)
+    print("Returning NewSequences in augmentData.py")
     return newSequences
 
     

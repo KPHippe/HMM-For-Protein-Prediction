@@ -66,9 +66,9 @@ def predict(pathToTest, pathToModels, pathToOutput):
         print(f"{pathToOutput} folder already made...")
 
     with open(pathToOutput.split(":")[0] + "/" + pathToOutput.split(":")[1], 'a+') as f: 
-        f.write("AUTHOR\tTeam Reshape Your Data\n")
-        f.write("MODEL\tHidden Markov Model\n")
-        f.write("KEYWORDS\tHidden Markov Model, machine learning\n")
+        f.write("AUTHOR\tReshapeYourData\n")
+        f.write("MODEL\t1\n")
+        f.write("KEYWORDS\thidden Markov model, machine learning\n")
         f.write("Sequence\tGO ID's\tConfidence\n")
 
     for protID, sequence in (dataToTest.items()):
