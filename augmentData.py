@@ -8,6 +8,7 @@ import copy
 import random
 import time
 
+import convertData
 '''
 augmentData takes a list of 1 or more seqeunces and uses an HMM to augment the data into a list of n
 sequences to unbias the training
@@ -17,7 +18,8 @@ Arguements: seqeunces -> list of one or more seqeunces
 
 returns: newData -> list of size n the follows the format of data to be fed to HMM
 '''
-def augmentData(sequences, n):
+def augmentData(term, sequences, n, path_to_output):
+    # print(f"In augment..py args: {term}, {len(sequences)}, {n}, {path_to_output}")
     newSequences = []
     
     avgLengthOfSequences = 0
@@ -65,8 +67,27 @@ def augmentData(sequences, n):
     '''convert this list of seqeucnes'''
     newSequences = convertData.augmentDataFromHMMForm(newSequences)
     #print("Returning NewSequences in augmentData.py")
-    return newSequences
+    writeToFile(term, newSequences, path_to_output)
+    #return newSequences
 
+
+def writeToFile(term, sequences, path_to_output):
+    
+    try: 
+        os.mkdir(path_to_output)
+        print(f"{path_to_output} made...")
+    except: 
+        pass
+
+    formattedSequences = convertData.formatData(sequences)
+
+    fileName = term + ".txt"
+    with open(path_to_output + fileName, 'w') as f:
+            for sequence in formattedSequences:
+                f.write('-'.join(str(i) for i in sequence))
+                f.write('\n')
+
+    print(f"{term} written to file")
     
 
 

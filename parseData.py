@@ -7,6 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 import random
 from tqdm import tqdm 
+import itertools
 
 import augmentData
 def parse(path_to_input_data, path_to_train_data, path_to_test_data):
@@ -107,62 +108,74 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
     training_dict_100 = {}
     testing_dict_100 = {}
     
+    
     # limit sequences to 100 for each goTerm
-    futuresList = []
+    '''
+    Try to make it so we don't have to return anything from this function
+    Write to files from AugmentData
+    '''
+    #smallTrainingTuple = list(GO_TERM_DICT_80.items())[:100]
+    nList = [100] *len(GO_TERM_DICT_80)
+    pathsList = [path_to_train_data] * len(GO_TERM_DICT_80)
+    
     #resultingTrainingData = {} # just to test my multiprocessing implementation
     with ProcessPoolExecutor(max_workers=(os.cpu_count() -2)) as executor: 
-        for term, sequences in tqdm(GO_TERM_DICT_80.items()):
-            future = executor.submit(multiProcessingAugmentation, term, sequences)
-            futuresList.append(future)
+        #for term, sequences in tqdm(GO_TERM_DICT_80.items()):
 
-    print("Augmenting Data...")
-    for future in futuresList:
-        if future.done():
+        executor.map(multiProcessingAugmentation, GO_TERM_DICT_80.items(), nList, pathsList)
+        #futuresList.append(future)
+
+    #print("Augmenting Data...")
+    # for future in futuresList:
+    #     if future.done():
                 
-            result = future.result()    
-            training_dict_100[result[0]] = result[1]
-    print(f"Length of training dictionary:  {len(training_dict_100)}")
+    #         result = future.result()    
+    #         training_dict_100[result[0]] = result[1]
+    # print(f"Length of training dictionary:  {len(training_dict_100)}")
 
     for term, sequences in GO_TERM_DICT_20.items():
         if len(sequences) >= 100:
             testing_list_100 = random.sample(sequences, 100)
-            testing_dict_100[term] = testing_list_100
+            #testing_dict_100[term] = testing_list_100
+            augmentData.writeToFile(term, testing_list_100, path_to_test_data)
         else:
             # TODO 
-            # augmentData()
-            testing_dict_100[term] = sequences 
+            # augmentData.writeToFile
+            # if len(sequences) == 1:
+            #     properFormatSequence = []
+            #     properFormatSequence.append([i for i in sequences])
+            #     augmentData.writeToFile(term, properFormatSequence, path_to_test_data)
+            # else:
+
+            augmentData.writeToFile(term, sequences, path_to_test_data)
+                #testing_dict_100[term] = sequences 
             
 
 
+def multiProcessingAugmentation(termSequenceTuple, n, path_to_output):
 
-    # print("Done with parseData, writing files to locations...")
-    # # UPDATE WITH INCREASE IN SEQUQNCES PER GO TERM. 100 REPRESENTS 100 SEQ
-    # train_file = open(path_to_train_data, "w")
-    # train_file.writelines(training_dict_100)
-    # train_file.close()
-
-    # testing_file = open(path_to_test_data, "w")
-    # testing_file.writelines(testing_dict_100)
-    # train_file.close()
-
-    return (training_dict_100, testing_dict_100)
-
-def multiProcessingAugmentation(term, sequences):
-    #print(f"inside augmentMulitProcessing, {term} len sequences: {len(sequences)}")
+    
     result = None
+    term = termSequenceTuple[0]
+    sequences = termSequenceTuple[1]
+    #print(f"inside augmentMulitProcessing, {term} len sequences: {len(sequences)}, n:{n}, path{path_to_output}")
+
     #print(f"inside multiProcessingAugmentation term: {term} len of sequences: {len(sequences)}")
     if len(sequences) >= 100:
         training_list_100 = random.sample(sequences, 100)
         result = (term, training_list_100)
+        augmentData.writeToFile(result[0], result[1], path_to_output)
     else:
         # TODO 
         """UNCOMMENTTHISLINE TO ENABE AUGMENTDATA TO ACTUALLY RUN"""
-        training_list_100 = augmentData.augmentData(sequences, 100)
+        augmentData.augmentData(term, sequences, 100, path_to_output)
         #training_list_100 = sequences
-        result = (term, training_list_100)
+        #result = (term, training_list_100)
+        
     #print("returning result from multiprocessingAugmentation in parseData")
     #print(f"result is: {','.join(str(i) for i in result)}")
-    return result
+    #augmentData.writeToFile(term, result, path_to_output)
+    #return result
 
 
 

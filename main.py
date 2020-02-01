@@ -76,11 +76,8 @@ def main(args):
             print("--make requires these three arguments:\nA path_to_input_data, a path_to_training_data, a path_to_testing_data")
             sys.exit()
         #do the making of data here
-        GO_TERMS_TRAINING_AND_TESTING  = parseData.parse(args[1], args[2], args[3]) #list of two dictionaries, 80 first, 20 second
-        GO_TERM_LISTS_80 = GO_TERMS_TRAINING_AND_TESTING[0]
-        GO_TERM_LISTS_20 = GO_TERMS_TRAINING_AND_TESTING[1]
+        parseData.parse(args[1], args[2], args[3]) #list of two dictionaries, 80 first, 20 second
 
-        convertData.convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20, args[2], args[3])
         print("Done making data...")
 
 
