@@ -45,6 +45,8 @@ def main(args):
             sys.exit()
 
         predict.predict(args[1], args[2], args[3])
+        print("Predictions made...")
+        sys.exit()
     '''
     This ends sys.args processing
     '''
@@ -63,6 +65,8 @@ def main(args):
             sys.exit()
 
         trainModels.trainModelsProcessPool(args[1], args[2])
+        print(f"Models saved to {args[2]}")
+        sys.exit()
     """
     Argument order is /pathToInput, pathToTrainingData, pathtotesting
     """
@@ -79,7 +83,7 @@ def main(args):
         parseData.parse(args[1], args[2], args[3]) #list of two dictionaries, 80 first, 20 second
 
         print("Done making data...")
-
+        sys.exit()
 
     if("--all") in args:
         are_you_sure = input(print("Creating everything from scratch, are you sure? [Y/N]"))
