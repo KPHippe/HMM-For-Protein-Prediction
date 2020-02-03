@@ -7,8 +7,6 @@ import numpy as np
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import Pool
 import shutil
-#to time the different methods
-import timeit
 def trainModels():
 
     try:
@@ -125,7 +123,7 @@ def HMMTrain(filename, path_to_training_file):
 
 
     #train the model
-    model = hmm.GaussianHMM(n_components=1, covariance_type='full', tol=0.001, n_iter=1000)
+    model = hmm.GaussianHMM(n_components=6, covariance_type='full', tol=0.001, n_iter=1000)
     model.fit(dataForHMM, lengths)
 
     #pickle the model 
@@ -133,7 +131,7 @@ def HMMTrain(filename, path_to_training_file):
     with open(path_to_training_file + os.pardir + "/HMMModels/" + modelName, 'wb') as f:
         pickle.dump(model, f)
 
-    
+    print(f"{modelName} model made") 
 
 
 if __name__ == "__main__":
