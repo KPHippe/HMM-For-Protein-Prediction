@@ -123,7 +123,7 @@ def HMMTrain(filename, path_to_training_file):
 
 
     #train the model
-    model = hmm.GaussianHMM(n_components=6, covariance_type='full', tol=0.001, n_iter=1000)
+    model = hmm.GaussianHMM(n_components=5, covariance_type='full', tol=0.001, n_iter=1000)
     model.fit(dataForHMM, lengths)
 
     #pickle the model 
