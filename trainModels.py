@@ -41,20 +41,20 @@ def trainModelsProcessPool(path_to_training_file, path_to_model_save):
     
     trainingDataList = os.listdir(path_to_training_file)
     pathsLists = [path_to_training_file] *len(trainingDataList)
-    print(pathsLists[0])
+    outPutPathList = [path_to_model_save] * len(trainingDataList)
     
     '''
     # Making new folder for models
     '''
     try:
-        os.mkdir(path_to_model_save + "/HMMModels/")
+        os.mkdir(path_to_model_save)
     except:
-        print("HMMModels folder already made")
+        print(f"{path_to_model_save} already made...")
     
     #train models concurrently here
     print("Training with ProcessPoolExecutor...") 
     with ProcessPoolExecutor(max_workers=numCPUs) as executor:
-        executor.map(HMMTrain, trainingDataList, pathsLists)
+        executor.map(HMMTrain, trainingDataList, pathsLists, outPutPathList)
    
 '''
 This is the multiprocessed version of tranModels
@@ -97,7 +97,7 @@ def trainModelsMultiprocessing():
  
     
 
-def HMMTrain(filename, path_to_training_file):
+def HMMTrain(filename, path_to_training_file, path_to_model_save):
     #parse the data
     '''
     model in '1-2-3-...-27' form
@@ -128,7 +128,7 @@ def HMMTrain(filename, path_to_training_file):
 
     #pickle the model 
     modelName = filename.split('.')[0] + ".mdl"
-    with open(path_to_training_file + os.pardir + "/HMMModels/" + modelName, 'wb') as f:
+    with open(path_to_model_save + modelName, 'wb') as f:
         pickle.dump(model, f)
 
     print(f"{modelName} model made") 
