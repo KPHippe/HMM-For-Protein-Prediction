@@ -6,16 +6,28 @@ import re
  The key -> is the proteinID number.
  The value -> unique sequence for protID
 """
-def readFasta(pathToFile):
-    with open(pathToFile + 'selected.fasta', 'r') as f:
-        f = f.read().strip()
-        f = f.split("\n")
+def readFasta(f):
 
-        res_dct = {f[i]: f[i + 1] for i in range(0, len(f), 2)}
-        #print("{" + "\n".join("{!r}: {!r}".format(k, v) for k, v in res_dct.items()) + "}")
+    name, sequence = None, []
+    for line in f:
+        line = line.rstrip()
+        if line.startswith('>'):
+            if name: yield (name, ''.join(sequence))
+            name, sequence, = line, []
+        else:
+            sequence.append(line)
+    if name: yield (name, ''.join(sequence))
 
 
-    return res_dct
+    #with open(pathToFile , 'r') as f:
+    #    f = f.read().strip()
+    #    f = f.split(">")
+
+    #    res_dct = {f[i]: f[i + 1] for i in range(0, len(f), 2)}
+    #    #print("{" + "\n".join("{!r}: {!r}".format(k, v) for k, v in res_dct.items()) + "}")
+
+
+    #return res_dct
 
 """
  This will open all three leafonly files, convert them to one long string.

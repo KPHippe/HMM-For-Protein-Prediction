@@ -57,11 +57,11 @@ def main(args):
         and a path for the output.
         """
         try:
-            # Main will truncate original command line arguments. will remove "python"
+            # Main will truncate original command line arguments. will remove "python", "main.py"
             os.path.isdir(args[1])
             os.path.isdir(args[2])
         except:
-            print("--train requires 2 arguments, first is path_to_trainin_file\nSecond is path_FOR_model_output")
+            print("--train requires 2 arguments, first is path_to_training_file\nSecond is path_FOR_model_output")
             sys.exit()
 
         trainModels.trainModelsProcessPool(args[1], args[2])

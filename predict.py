@@ -5,6 +5,7 @@ import pickle
 from collections import OrderedDict
 import numpy as np
 import copy
+from concurrent.futures import ProcessPoolExecutor
 
 import readSelected
 import convertData
@@ -34,26 +35,25 @@ def loadModels(pathToModels):
 
 def predict(pathToTest, pathToModels, pathToOutput):
     models = loadModels(pathToModels)
-     
-    '''
-    Load test data
-    '''
-    #returns a dict key -> sequence id value -> sequence
-    selected10Fasta = readSelected.readFasta(pathToTest)
-    dataToTest = {}
-    for protID, sequence in selected10Fasta.items():
-        dataToTest[protID] = convertData.augmentDataToHMMForm([sequence])
+    
+    testSequenceFileNames = []
+    try: 
+        testSequenceFileNames = os.listdir(pathToTest)
+    except: 
+        print(f"Test folder: {pathToTest} not found")
+        sys.exit()
+    speciesNames = []
+    for fileName in testSequenceFileNames:
+        speciesNames.append(fileName.split(".")[1])
+    print(testSequenceFileNames) 
+    print(speciesNames)
+
 
     '''
     Run our seqeunces through the model
     '''
-    #THIS IS TEMPORARY FOR THE DEMO
-    try: 
-        dict_of_protID_and_goTerm = readSelected.getSelectedGroundTruths(os.pardir+"/Competition50Targets/groundtruth/")
-    except: 
-        print("No ground truths found...")
-    
-
+        
+    '''Change this to be required resource later'''
     goTERM_to_ID =  readSelected.establishGOIDtoTermRelations(os.pardir +"/functionResource/data/")[1] 
 
     '''
@@ -61,74 +61,75 @@ def predict(pathToTest, pathToModels, pathToOutput):
 
     '''
     try: 
-        os.mkdir(pathToOutput.split(":")[0] +"/")
-    except: 
-        print(f"{pathToOutput} folder already made...")
-
-    with open(pathToOutput.split(":")[0] + "/" + pathToOutput.split(":")[1], 'a+') as f: 
-        f.write("AUTHOR\tReshapeYourData\n")
-        f.write("MODEL\t1\n")
-        f.write("KEYWORDS\thidden Markov model, machine learning\n")
-        f.write("Sequence\tGO ID's\tConfidence\n")
-
-    for protID, sequence in (dataToTest.items()):
-        #key -> gotermfilename from test data
-        #value -> score
-
-        scores = OrderedDict()
-
-        for label, model in models.items():
-            dataToFeedIntoHMM = copy.deepcopy(sequence) 
-            
-            dataToFeedIntoHMM = np.array(dataToFeedIntoHMM)
-            dataToFeedIntoHMM = dataToFeedIntoHMM.astype(np.float64)
-            dataToFeedIntoHMM = np.reshape(dataToFeedIntoHMM, (-1,1))
-
-
-            score = model.score(dataToFeedIntoHMM)
-            #RESHAPE THE SCORE HERE TODO
-            
-            scores[label] = score
-        
-        sortedScores = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
-        '''Save Results to file'''
-        writeResultsToFile(protID, sortedScores, goTERM_to_ID, pathToOutput) 
-
-        print("*"*40)
-        print("We are testing {} from CompetitoinTargets".format(protID[1:]))
-        try: 
-            print("sequence go IDS {}".format([pID for pID in dict_of_protID_and_goTerm[protID[1:]]]))
-        except: 
-            pass
-        for label, score in sortedScores[:25]:
-            print("{} score: {} randomSequence score: {}".format(goTERM_to_ID[label], score))
-            if label == protID:
-                print('-'*30)
-        print("*"*40)
-
-    '''Terminate the file with END keyword'''
-    with open(pathToOutput.split(":")[0] + "/" + pathToOutput.split(":")[1], 'a+') as f: 
-        f.write("END")
-
-
-
-def writeResultsToFile(protID, scores, goTerm_to_ID, pathToOutput):
-     
-    try:
-
-        fileName = pathToOutput.split(":")[1]
+        os.mkdir(pathToOutput)
+        print(f"{pathToOutput} folder made...")
     except:
-        print("Invalid output file path, or name...")
-        sys.exit()
-    try: 
-        os.mkdir(pathToOutput.split(":")[0] +"/")
-    except: 
-        print(f"{pathToOutput} folder already made...")
+        pass
 
     
-    with open(pathToOutput.split(":")[0] + "/" + fileName, 'a+') as f: 
-        for goTerm,score in scores[:1000]: 
-            f.write(f"{protID[1:]}\t{goTerm_to_ID[goTerm]}\t{str(score)}")    
+    for fileName, speciesName in zip(testSequenceFileNames, speciesNames):
+        
+        dataToTest = {}
+        with open(pathToTest + fileName, "r") as f:
+            for protID, sequence in readSelected.readFasta(f):
+                dataToTest[protID] = convertData.augmentDataToHMMForm([sequence])
+
+
+        with open(pathToOutput + "ReshapeYourData_1_" + speciesName + "_go.txt", 'a+') as f: 
+            f.write("AUTHOR\tReshapeYourData\n")
+            f.write("MODEL\t1\n")
+            f.write("KEYWORDS\thidden Markov model, machine learning\n")
+        
+        #multiprocessing to generate all the scores for each sequence
+        futureList = []
+        with ProcessPoolExecutor() as executor:
+            for protID, sequence in dataToTest.items():
+                futureList.append(executor.submit(generateScores, protID, sequence, goTERM_to_ID, models))
+
+        for future in futureList:
+            protID, sortedScores = future.result()
+            writeResultsToFile(protID, sortedScores, goTERM_to_ID, pathToOutput, speciesName)
+
+        
+        '''Terminate the file with END keyword'''
+        with open(pathToOutput + "ReshapeYourData_1_" + speciesName + "_go.txt", 'a+') as f: 
+            f.write("END")
+        print(f"Made {fileName} predictions")
+
+
+def generateScores(protID, sequence, goTERM_to_ID, models):
+    print("inside generateScores")
+
+    #key -> gotermfilename from test data
+    #value -> score
+    print(f"sequence ID being tested: {protID}")
+    scores = OrderedDict()
+
+    for label, model in models.items():
+        dataToFeedIntoHMM = copy.deepcopy(sequence) 
+        
+        dataToFeedIntoHMM = np.array(dataToFeedIntoHMM)
+        dataToFeedIntoHMM = dataToFeedIntoHMM.astype(np.float64)
+        dataToFeedIntoHMM = np.reshape(dataToFeedIntoHMM, (-1,1))
+
+
+        score = model.score(dataToFeedIntoHMM)
+        #RESHAPE THE SCORE HERE TODO
+        
+        scores[label] = score
+    
+    sortedScores = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
+    '''Save Results to file'''
+    #writeResultsToFile(protID, sortedScores, goTERM_to_ID, pathToOutput, speciesName) 
+    '''Return result so queue can write it all to file'''
+    print("returning in generateScores")
+    return (protID, sortedScores)
+
+
+def writeResultsToFile(protID, scores, goTerm_to_ID, pathToOutput, speciesName):
+    with open( pathToOutput + "ReshapeYourData_1_" + speciesName + "_go.txt", 'a+') as f: 
+        for goTerm,score in scores[:200]: 
+            f.write(f"{protID[1:].split()[0]}\t{goTerm_to_ID[goTerm]}\t{str(score)}")    
             f.write("\n")
 
 
