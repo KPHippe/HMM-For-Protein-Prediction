@@ -128,21 +128,12 @@ def generateScores(protID, sequence, goTERM_to_ID, models):
 def writeResultsToFile(protID, scores, goTerm_to_ID, pathToOutput, speciesName):
     maxScore = scores[0][1]
     minScore = scores[200][1]
-    # print(f"max score {maxScore} min score: {minScore}")
-    #sys.exit()
 
-    # for term, score in scores:
-    #     if score > maxScore:
-    #         maxScore = score
-    #     if score < minScore or minScore == 0:
-    #         minScore = score
-
-    scoreRange = maxScore - minScore 
 
     '''score = 1 - percent difference of score to range'''
     with open( pathToOutput + "ReshapeYourData_1_" + speciesName + "_go.txt", 'a+') as f: 
         for goTerm,score in scores[:200]: 
-            probScore = 1.0 + ((score - maxScore)/abs(maxScore))
+            probScore = 1.0 - abs(((score - maxScore)/abs(maxScore)))
             writtenScore = "{:0.2f}".format(probScore)
             f.write(f"{protID[1:].split()[0]}\t{goTerm_to_ID[goTerm]}\t{writtenScore}")    
             f.write("\n")
