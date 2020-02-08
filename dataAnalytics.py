@@ -73,12 +73,13 @@ for term, count in GOTERMSCOUNT.items():
     if count > maxSequencePerGOTerm[0]:
         maxSequencePerGOTerm = (count, term)
     if count >= 100:
-        over1000 += 1
+        
+        
 
 print("Total different go terms in this database: {}".format(len(GOTERMSCOUNT)))
 print("Average number of sequences per go term: {}".format(totalSequeneNum//len(GOTERMSCOUNT)))
 print("Max number of seqeunces for a go term: {} ({})".format(maxSequencePerGOTerm[0], maxSequencePerGOTerm[1]))
-print(f"number of terms with between 100 and 1000 sequences: {over1000}")
+print(f"number of terms with over 1000 sequences: {over1000}")
 #tuple
 sortedGOTERMSCOUNT = sorted(GOTERMSCOUNT.items(), key=operator.itemgetter(1), reverse=True)
 
