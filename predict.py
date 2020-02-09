@@ -132,7 +132,7 @@ def writeResultsToFile(protID, scores, goTerm_to_ID, pathToOutput, speciesName):
 
     '''score = 1 - percent difference of score to range'''
     with open( pathToOutput + "ReshapeYourData_1_" + speciesName + "_go.txt", 'a+') as f: 
-        for goTerm,score in scores[:200]: 
+        for goTerm,score in scores[:75]: 
             probScore = 1.0 - abs(((score - maxScore)/abs(maxScore)))
             writtenScore = "{:0.2f}".format(probScore)
             f.write(f"{protID[1:].split()[0]}\t{goTerm_to_ID[goTerm]}\t{writtenScore}")    
