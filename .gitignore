@@ -1,5 +1,5 @@
 functionResource/ 
 PackageStudent/
 *.txt
-__pychace__/
+__pychache__/
 *.py.swp
