@@ -125,8 +125,6 @@ def augmentDataToHMMForm(sequences):
         tmpList = []
         numSeq.append([formatMap_LetToNum[i] for i in sequence])
         
-        #numSeq.append(tmpList)
-    
     return numSeq 
 '''
 Takes a sequence in the form [1,2,3,4,5...,26] and returns the list in the form [A,B,C,D,E,...,Z]
@@ -137,7 +135,6 @@ def augmentDataFromHMMForm(sequences):
     for sequence in sequences:
         tmpList = []
         letSeq.append([formatMap_NumToLet[i] for i in sequence])
-        #letSeq.append(tmpList)
     
     return letSeq
 

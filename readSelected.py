@@ -19,16 +19,6 @@ def readFasta(f):
     if name: yield (name, ''.join(sequence))
 
 
-    #with open(pathToFile , 'r') as f:
-    #    f = f.read().strip()
-    #    f = f.split(">")
-
-    #    res_dct = {f[i]: f[i + 1] for i in range(0, len(f), 2)}
-    #    #print("{" + "\n".join("{!r}: {!r}".format(k, v) for k, v in res_dct.items()) + "}")
-
-
-    #return res_dct
-
 """
  This will open all three leafonly files, convert them to one long string.
  Then create a dictionary where key -> proteinID number.
@@ -79,6 +69,5 @@ def establishGOIDtoTermRelations(pathToFile):
         goID_to_term_dict = {f[i]: f[i + 1] for i in range(0, len(f), 2)}
         goTerm_to_ID_dict = {f[i+1]: f[i] for i in range(0, len(f), 2)}
 
-        #need to have these structures persist onece this mehtod is called
         #return ID to Term first index, Term to ID second index
         return (goID_to_term_dict, goTerm_to_ID_dict)

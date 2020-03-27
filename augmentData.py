@@ -19,7 +19,6 @@ Arguements: seqeunces -> list of one or more seqeunces
 returns: newData -> list of size n the follows the format of data to be fed to HMM
 '''
 def augmentData(term, sequences, n, path_to_output):
-    # print(f"In augment..py args: {term}, {len(sequences)}, {n}, {path_to_output}")
     newSequences = []
     
     avgLengthOfSequences = 0
@@ -59,16 +58,13 @@ def augmentData(term, sequences, n, path_to_output):
         newData = model.sample(nLengthSequence)[0]
         convertedData = convertData.formatOutputFromHMM(newData)
 
-
         #add the seqeunce to the new data
         newSequences.append(convertedData)
 
         
     '''convert this list of seqeucnes'''
     newSequences = convertData.augmentDataFromHMMForm(newSequences)
-    #print("Returning NewSequences in augmentData.py")
     writeToFile(term, newSequences, path_to_output)
-    #return newSequences
 
 
 def writeToFile(term, sequences, path_to_output):
@@ -88,39 +84,4 @@ def writeToFile(term, sequences, path_to_output):
                 f.write('\n')
 
     print(f"{term} written to file")
-    
-
-
-if __name__ == '__main__':
-    #baxs is a small file, one sequence long
-    fileToGrab = "BAXS.txt"
-    
-
-    try: 
-        baxs = open(os.pardir + "/TrainingDataForHMM/" + fileToGrab, 'r').read().split('-')
-        cuhn = open(os.pardir + "/TrainingDataForHMM/" + "CUHN.txt", 'r').read().split()
-
-    except: 
-        print(f"An error occured grabbing {fileToGrab}")
-        sys.exit()
-    print(cuhn)
-    sepcuhn = []
-    for seq in cuhn:
-        seq = seq.split("-")
-        sepcuhn.append(int(i) for i in seq)
-    baxs = [int(i) for i in baxs]
-    letterbaxs = convertData.augmentDataFromHMMForm([baxs])
-    lettercuhn = convertData.augmentDataFromHMMForm(sepcuhn) 
-     
-    #actually do the augmenting here
-    augmentedSequences = []
-    augmentedSequences = augmentData(letterbaxs, 10)
-    augmentedSequences = augmentData(lettercuhn, 100)
-    for seq in lettercuhn: 
-        print(" ".join(i for i in seq))
-    print("This is the result of augmentData:")
-    for res in augmentedSequences:
-        print(" ".join(i for i in res))
-
-
     

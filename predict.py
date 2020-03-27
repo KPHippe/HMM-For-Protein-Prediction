@@ -18,11 +18,10 @@ def loadModels(pathToModels):
     models = {}
     modelFiles = []
    
-    #MAKE SURE TO CHANGE BACK TO HMMModels ONCE DEMO DONE
     try:
         modelFiles = os.listdir(pathToModels)
     except: 
-        print("HMMModels folder does not exist")
+        print(f"{pathToModels} folder does not exist")
         sys.exit()
 
     
@@ -55,7 +54,7 @@ def predict(pathToTest, pathToModels, pathToOutput):
     '''
         
     '''Change this to be required resource later'''
-    goTERM_to_ID =  readSelected.establishGOIDtoTermRelations(os.pardir +"/functionResource/data/")[1] 
+    goTERM_to_ID =  readSelected.establishGOIDtoTermRelations("/RequiredResources/")[1] 
 
     '''
     Establish output file with correct header 
@@ -114,13 +113,10 @@ def generateScores(protID, sequence, goTERM_to_ID, models):
 
 
         score = model.score(dataToFeedIntoHMM)
-        #RESHAPE THE SCORE HERE TODO
         
         scores[label] = score
     
     sortedScores = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
-    '''Save Results to file'''
-    #writeResultsToFile(protID, sortedScores, goTERM_to_ID, pathToOutput, speciesName) 
     '''Return result so queue can write it all to file'''
     return (protID, sortedScores)
 

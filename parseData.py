@@ -12,7 +12,6 @@ import itertools
 import augmentData
 def parse(path_to_input_data, path_to_train_data, path_to_test_data):
 
-    # file_path = os.pardir + "/functionResource/data/New_filtered_balanced_protein_language_data_34567_top2000"
     file_path = path_to_input_data
 
     '''
@@ -66,11 +65,6 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
                 GOTERMSDICT[term] = []
                 GOTERMSDICT[term].append(str(sequence))
     
-    # BANNED TERMS HERE!
-    bannedTerms = set()
-    #bannedTerms.add("PRN")
-    #bannedTerms.add("CON")
-    #bannedTerms.add("NUL")
 
     GO_TERM_DICT_80 = OrderedDict()
     GO_TERM_DICT_20 = OrderedDict()
@@ -78,48 +72,35 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
     for sequence in eightyPercent: 
         terms = UNIPROT[sequence]
         for term in terms:
-            # TODO 
-            # temporairly removed bannedTerms because we have a delimitter on # sequences
-            if term not in bannedTerms:
+            if GO_TERM_DICT_80.get(term) != None: 
+                GO_TERM_DICT_80.get(term).append(str(sequence))
 
-                if GO_TERM_DICT_80.get(term) != None: 
-                    GO_TERM_DICT_80.get(term).append(str(sequence))
-
-                else: 
-                    GO_TERM_DICT_80[term] = []
-                    GO_TERM_DICT_80[term].append(str(sequence))
+            else: 
+                GO_TERM_DICT_80[term] = []
+                GO_TERM_DICT_80[term].append(str(sequence))
            
            
     for sequence in twentyPercent: 
         terms = UNIPROT[sequence]
         for term in terms:
-            # TODO 
-            # temporairly removed bannedTerms because we have a delimitter on # sequences
-            if term not in bannedTerms:
+            if GO_TERM_DICT_20.get(term) != None: 
+                GO_TERM_DICT_20.get(term).append(str(sequence))
 
-                if GO_TERM_DICT_20.get(term) != None: 
-                    GO_TERM_DICT_20.get(term).append(str(sequence))
-
-                else: 
-                    GO_TERM_DICT_20[term] = []
-                    GO_TERM_DICT_20[term].append(str(sequence))
+            else: 
+                GO_TERM_DICT_20[term] = []
+                GO_TERM_DICT_20[term].append(str(sequence))
     
     for sequence in list_dict_keys: 
         terms = UNIPROT[sequence]
         for term in terms:
-            # TODO 
-            # temporairly removed bannedTerms because we have a delimitter on # sequences
-            if term not in bannedTerms:
+            if GO_TERM_DICT_100.get(term) != None: 
+                GO_TERM_DICT_100.get(term).append(str(sequence))
 
-                if GO_TERM_DICT_100.get(term) != None: 
-                    GO_TERM_DICT_100.get(term).append(str(sequence))
-
-                else: 
-                    GO_TERM_DICT_100[term] = []
-                    GO_TERM_DICT_100[term].append(str(sequence))
+            else: 
+                GO_TERM_DICT_100[term] = []
+                GO_TERM_DICT_100[term].append(str(sequence))
 
 
-    # TODO this is the new GO_TERM_LISTS_80 that has been shuffled and randomly 100 selected
     training_dict_100 = {}
     testing_dict_100 = {}
     
@@ -129,34 +110,20 @@ def parse(path_to_input_data, path_to_train_data, path_to_test_data):
     Try to make it so we don't have to return anything from this function
     Write to files from AugmentData
     '''
-    #smallTrainingTuple = list(GO_TERM_DICT_80.items())[:100]
     nList = [100] *len(GO_TERM_DICT_80)
     pathsList = [path_to_train_data] * len(GO_TERM_DICT_80)
     
-    #resultingTrainingData = {} # just to test my multiprocessing implementation
     with ProcessPoolExecutor(max_workers=(os.cpu_count() -2)) as executor: 
-        #for term, sequences in tqdm(GO_TERM_DICT_80.items()):
         '''CHANGED FOR NOW TO GET FULL SET OF DATA FOR CAFA'''
         executor.map(multiProcessingAugmentation, GO_TERM_DICT_100.items(), nList, pathsList)
-        #futuresList.append(future)
 
     if len(GO_TERM_DICT_20) != 0:
         for term, sequences in GO_TERM_DICT_20.items():
             if len(sequences) >= 100:
                 testing_list_100 = random.sample(sequences, 100)
-                #testing_dict_100[term] = testing_list_100
                 augmentData.writeToFile(term, testing_list_100, path_to_test_data)
             else:
-                # TODO 
-                # augmentData.writeToFile
-                # if len(sequences) == 1:
-                #     properFormatSequence = []
-                #     properFormatSequence.append([i for i in sequences])
-                #     augmentData.writeToFile(term, properFormatSequence, path_to_test_data)
-                # else:
-
                 augmentData.writeToFile(term, sequences, path_to_test_data)
-                    #testing_dict_100[term] = sequences 
                 
 
 
@@ -166,27 +133,15 @@ def multiProcessingAugmentation(termSequenceTuple, n, path_to_output):
     result = None
     term = termSequenceTuple[0]
     sequences = termSequenceTuple[1]
-    #print(f"inside augmentMulitProcessing, {term} len sequences: {len(sequences)}, n:{n}, path{path_to_output}")
 
-    #print(f"inside multiProcessingAugmentation term: {term} len of sequences: {len(sequences)}")
     if len(sequences) >= 1000:
         training_list_100 = random.sample(sequences, 1000)
         result = (term, training_list_100)
         augmentData.writeToFile(result[0], result[1], path_to_output)
     elif len(sequences) < 100:
-        # TODO 
-        """UNCOMMENTTHISLINE TO ENABE AUGMENTDATA TO ACTUALLY RUN"""
         augmentData.augmentData(term, sequences, 100, path_to_output)
-        #training_list_100 = sequences
-        #result = (term, training_list_100)
     else:
-        
         augmentData.writeToFile(term, sequences, path_to_output)
-    #print("returning result from multiprocessingAugmentation in parseData")
-    #print(f"result is: {','.join(str(i) for i in result)}")
-    #augmentData.writeToFile(term, result, path_to_output)
-    #return result
-
 
 
 '''
@@ -196,5 +151,4 @@ to create/predict additional sequences (up to the limit 100)
 '''
 if __name__ == "__main__":
 
-    #parse("","","")
     sys.exit()

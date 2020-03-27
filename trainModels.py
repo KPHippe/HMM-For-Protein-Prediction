@@ -103,7 +103,6 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
     model in '1-2-3-...-27' form
 
     '''
-    #MAKE SURE TO CHANGE WHEN DONE TESTING
     with open(path_to_training_file + filename, "r") as f:
         sequences = f.read().split('\n')
     
@@ -133,15 +132,5 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
 
     print(f"{modelName} model made") 
 
-
-if __name__ == "__main__":
-
-    try: 
-        shutil.rmtree(os.pardir + "/HMMModels/")
-    except: 
-        pass
-    
-    #multiprocessing is the way to go here, it has tqdm and is just as fast
-    # trainModelsProcessPool()
     
     

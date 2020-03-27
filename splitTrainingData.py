@@ -36,19 +36,16 @@ def split(args):
         print(f"{args[0]} not found... exiting")
         sys.exit()
 
-    #print(len(trainingFiles))
     firstForty = round(len(trainingFiles)*.40)
     secondForty = firstForty + firstForty
     firstTen = secondForty + round(len(trainingFiles)*.10)
     secondTen = firstTen + round(len(trainingFiles)*.10)
-    #print(f"firstForty: {firstForty} secondForty: {secondForty} firstTen: {firstTen} secondTen:{secondTen}")
 
     firstSplit = trainingFiles[0:firstForty]
     secondSplit = trainingFiles[firstForty:secondForty]
     thirdSplit = trainingFiles[secondForty:firstTen]
     fourthSplit = trainingFiles[firstTen:]
 
-    #print(f"firstSplit: {len(firstSplit)} secondSplit: {len(secondSplit)} thirdSplit:{len(thirdSplit)} fourthSplit: {len(fourthSplit)}")
 
     for x in firstSplit: 
         if x in secondSplit or x in thirdSplit or x in fourthSplit: 

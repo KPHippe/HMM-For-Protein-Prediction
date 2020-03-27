@@ -16,10 +16,9 @@ from tqdm import tqdm
 def main(args):
     '''
     --predict 
-    #other args
-    1 -> path to test sequences
-    2 -> path to models 
-    3 -> path to output texts
+        1 -> path to test sequences
+        2 -> path to models 
+        3 -> path to output texts
     --generateData
     #not working yet 
     --train
@@ -30,7 +29,6 @@ def main(args):
     '''
     This is for sys.args processing
     '''
-    print(args)
     if("--predict") in args:
         '''
         Predict needs path to test sequences, path to models, path to output
@@ -57,7 +55,6 @@ def main(args):
         and a path for the output.
         """
         try:
-            # Main will truncate original command line arguments. will remove "python", "main.py"
             os.path.isdir(args[1])
             os.path.isdir(args[2])
         except:
@@ -95,42 +92,13 @@ def main(args):
         else:
             print("Smart move, stopping everything now.")
             sys.exit()
-    # else:
-    #     print("SoMeThInG wEnT wRoNg")
-    #     sys.exit()
+
 
     if not os.path.isdir(os.pardir + "/TrainingDataForHMM") and not os.path.isdir(os.pardir +
             "/TestDataForHMM"):
 
-        print("SoMeThInG wEnT wRoNg")
+        print("Something went wrong, /TrainingDataForHMM or /TestDataForHMM not a directory")
         sys.exit()
-    #     GO_TERM_LISTS = parseData.parse()
-
-    #     GO_TERM_LISTS_80 = GO_TERM_LISTS[0]
-
-    #     GO_TERM_LISTS_20 = GO_TERM_LISTS[1]
-
-    #     '''
-
-    #     create all the files
-
-    #     '''
-    #     convertData.convertData(GO_TERM_LISTS_80, GO_TERM_LISTS_20)
-        
-    # '''
-    
-    # Train all the models here
-
-    # '''
-
-    # trainModels.trainModelsProcessPool()
-
-    # '''
-    
-    # Prediction calculations here
-
-    # '''
-    # predict.predict(args[1], args[2], args[3])
 
 
 

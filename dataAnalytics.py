@@ -73,6 +73,7 @@ for term, count in GOTERMSCOUNT.items():
     if count > maxSequencePerGOTerm[0]:
         maxSequencePerGOTerm = (count, term)
     if count >= 100:
+        pass
         
         
 
