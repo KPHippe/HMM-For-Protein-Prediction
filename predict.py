@@ -29,8 +29,7 @@ def loadModels(pathToModels):
         goTermName = fileName.split('.')[0]
         model = pickle.load(open(pathToModels + fileName, 'rb'))
         models[goTermName] = model
-
-
+        
     return models
 
 def predict(pathToTest, pathToModels, pathToOutput):
