@@ -7,7 +7,7 @@ This project was designed to participate in [CAFA4](https://www.biofunctionpredi
 The goal of this program is to take in a protein amino acid sequence and construct a model that would predict the most likely functions of the protein. 
 
 Results are still being processed and when results arrive, this repository will be updated to reflect results
----
+
 ## How-To 
 
 The only thing a user should have to interact with would be main.py.
