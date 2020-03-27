@@ -18,7 +18,7 @@ This program is also not designed to be run without large amounts of resources. 
 
 ### Making files 
 
-Due to the skewed nature of GO functions of proteins, we used data augmentation to generate additional data for the functions that had a low number of references.
+Due to the uneven relationship between GO functions and the number of sequences that correspond to them, we used data augmentation to generate additional data for the functions that had a low number of references.
 
 We are working on a solution for hosting the training data and the augmented files, the link will appear below here if we find a solution. 
 
