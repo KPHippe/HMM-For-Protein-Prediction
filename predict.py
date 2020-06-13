@@ -53,7 +53,7 @@ def predict(pathToTest, pathToModels, pathToOutput):
     '''
         
     '''Change this to be required resource later'''
-    goTERM_to_ID =  readSelected.establishGOIDtoTermRelations("/RequiredResources/")[1] 
+    goTERM_to_ID =  readSelected.establishGOIDtoTermRelations("./RequiredResources/")[1] 
 
     '''
     Establish output file with correct header 
@@ -74,8 +74,8 @@ def predict(pathToTest, pathToModels, pathToOutput):
                 dataToTest[protID] = convertData.augmentDataToHMMForm([sequence])
 
 
-        with open(pathToOutput + "ReshapeYourData_1_" + speciesName + "_go.txt", 'a+') as f: 
-            f.write("AUTHOR\tReshapeYourData\n")
+        with open(pathToOutput + "CaoLabs2_" + speciesName + "_go.txt", 'a+') as f: 
+            f.write("AUTHOR\tCaoLabs2\n")
             f.write("MODEL\t1\n")
             f.write("KEYWORDS\thidden Markov model, machine learning\n")
         
@@ -91,7 +91,7 @@ def predict(pathToTest, pathToModels, pathToOutput):
 
         
         '''Terminate the file with END keyword'''
-        with open(pathToOutput + "ReshapeYourData_1_" + speciesName + "_go.txt", 'a+') as f: 
+        with open(pathToOutput + "CaoLabs2_" + speciesName + "_go.txt", 'a+') as f: 
             f.write("END")
         print(f"Made {fileName} predictions")
 
