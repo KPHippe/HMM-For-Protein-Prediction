@@ -8,11 +8,17 @@ The goal of this program is to take in a protein amino acid sequence and constru
 
 Results are still being processed and when results arrive, this repository will be updated to reflect results
 
+## Requirements 
+- hmmlearn
+- scikit-learn
+- tqdm
+- numpy
+
 ## How-To 
 
 The only thing a user should have to interact with would be main.py.
 
-Hidden Markov Models are notoiously computate-intensive and this program is not designed to be run straight through, it would take months. It is designed to be run in chunks, making the data, training the models, and the making predictions
+Hidden Markov Models are notoriously computate-intensive and this program is not designed to be run straight through, it would take months. It is designed to be run in chunks, making the data, training the models, and the making predictions
 
 This program is also not designed to be run without large amounts of resources. To get results on any significant scale, it would need to be run on a machine with at least 32 cores. 
 
