@@ -10,19 +10,19 @@ import re
 from collections import OrderedDict
 import numpy as np
 import random
-from tqdm import tqdm
 
+from timeit import default_timer as timer
 
 def main(args):
     '''
-    --predict 
+    --predict
         1 -> path to test sequences
-        2 -> path to models 
+        2 -> path to models
         3 -> path to output texts
     --generateData
-    #not working yet 
+    #not working yet
     --train
-    #not working yet 
+    #not working yet
 
     '''
 
@@ -33,17 +33,20 @@ def main(args):
         '''
         Predict needs path to test sequences, path to models, path to output
         '''
-        try: 
+        start = timer()
+        try:
             # Main will truncate original command line arguments. will remove "python"
             os.path.isdir(args[1])
             os.path.isdir(args[2])
             os.path.isdir(args[3])
-        except: 
+        except:
             print("A folder does not exist/is not a valid path\nPlease enter a valid path")
             sys.exit()
 
         predict.predict(args[1], args[2], args[3])
         print("Predictions made...")
+        total_t = timer() - start
+        print(f"Total time: {total_t}")
         sys.exit()
     '''
     This ends sys.args processing
@@ -68,12 +71,12 @@ def main(args):
     Argument order is /pathToInput, pathToTrainingData, pathtotesting
     """
     if("--make") in args:
-        try: 
+        try:
             # Main will truncate original command line arguments. will remove "python"
             os.path.isdir(args[1])
             os.path.isdir(args[2])
             os.path.isdir(args[3])
-        except: 
+        except:
             print("--make requires these three arguments:\nA path_to_input_data, a path_to_training_data, a path_to_testing_data")
             sys.exit()
         #do the making of data here

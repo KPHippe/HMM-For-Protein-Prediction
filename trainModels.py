@@ -2,7 +2,6 @@ import os
 import sys
 from hmmlearn import hmm
 import pickle
-from tqdm import tqdm
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import Pool
@@ -23,8 +22,8 @@ def trainModels():
         os.mkdir(os.pardir + "/HMMModels/")
     except:
         print("HMMModels folder already made")
-    
-    
+
+
     #train models here
 
     print("Training with no optimization")
@@ -36,13 +35,13 @@ def trainModels():
 This is the multiprocessed version of tranModels
 '''
 def trainModelsProcessPool(path_to_training_file, path_to_model_save):
-    #leave one full core for other things 
+    #leave one full core for other things
     numCPUs = os.cpu_count() - 2
-    
+
     trainingDataList = os.listdir(path_to_training_file)
     pathsLists = [path_to_training_file] *len(trainingDataList)
     outPutPathList = [path_to_model_save] * len(trainingDataList)
-    
+
     '''
     # Making new folder for models
     '''
@@ -50,18 +49,18 @@ def trainModelsProcessPool(path_to_training_file, path_to_model_save):
         os.mkdir(path_to_model_save)
     except:
         print(f"{path_to_model_save} already made...")
-    
+
     #train models concurrently here
-    print("Training with ProcessPoolExecutor...") 
+    print("Training with ProcessPoolExecutor...")
     with ProcessPoolExecutor(max_workers=numCPUs) as executor:
         executor.map(HMMTrain, trainingDataList, pathsLists, outPutPathList)
-   
+
 '''
 This is the multiprocessed version of tranModels
 '''
 def trainModelsMultiprocessing():
     '''Setup multiprocessing'''
-    #leave one full core for other things 
+    #leave one full core for other things
     numCPUs = os.cpu_count() - 2
     p = Pool(numCPUs)
 
@@ -79,23 +78,23 @@ def trainModelsMultiprocessing():
         os.mkdir(os.pardir + "/HMMModels/")
     except:
         print("HMMModels folder already made")
-    
-    
+
+
     '''train models concurrently here'''
     '''
-    Example: 
+    Example:
     list(tqdm.tqdm(pool.imap_unordered(do_work, range(num_tasks)), total=len(values)))
-    ''' 
-    
+    '''
+
     print("Training using multiprocessing...")
-    
+
     list(tqdm(p.imap_unordered(HMMTrain, trainingDataList),
         total=len(trainingDataList)))
 
     p.close()
     p.join()
- 
-    
+
+
 
 def HMMTrain(filename, path_to_training_file, path_to_model_save):
     #parse the data
@@ -105,15 +104,15 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
     '''
     with open(path_to_training_file + filename, "r") as f:
         sequences = f.read().split('\n')
-    
-    dataForHMM = np.array([]) 
-    lengths = [] 
+
+    dataForHMM = np.array([])
+    lengths = []
 
     for sequence in sequences[:-1]:
         tmpList = sequence.split('-')
         for i in range(len(tmpList)):
             tmpList[i] = int(tmpList[i])
-        
+
         dataForHMM = np.append(dataForHMM, tmpList)
         lengths.append(len(tmpList))
 
@@ -125,12 +124,9 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
     model = hmm.GaussianHMM(n_components=5, covariance_type='full', tol=0.001, n_iter=1000)
     model.fit(dataForHMM, lengths)
 
-    #pickle the model 
+    #pickle the model
     modelName = filename.split('.')[0] + ".mdl"
     with open(path_to_model_save + modelName, 'wb') as f:
         pickle.dump(model, f)
 
-    print(f"{modelName} model made") 
-
-    
-    
+    print(f"{modelName} model made")
