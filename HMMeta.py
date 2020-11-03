@@ -1,7 +1,7 @@
-import Augment.parseData as parseData
-import Augment.convertData as convertData
-from Train.trainModels import trainModelsProcessPool
-import Predict.predict as predict
+import Augment_Scripts.parseData as parseData
+import Augment_Scripts.convertData as convertData
+from Train_Scripts.trainModels import trainModelsProcessPool
+import Predict_Scripts.predict as predict
 
 import sys
 import os

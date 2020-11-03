@@ -11,8 +11,8 @@ from multiprocessing import Process, Queue
 from concurrent.futures import ProcessPoolExecutor
 
 
-import Predict.readSelected as readSelected
-import Predict.convertData as convertData
+import Predict_Scripts.readSelected as readSelected
+import Predict_Scripts.convertData as convertData
 
 
 def predict(pathToTest, pathToModels, pathToOutput):
