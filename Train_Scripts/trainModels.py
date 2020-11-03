@@ -105,7 +105,6 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
     model in '1-2-3-...-27' form
 
     '''
-    print("Inside hmmtrain")
     with open(join(path_to_training_file, filename), "r") as f:
         sequences = f.read().split('\n')
 
@@ -122,13 +121,11 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
 
     dataForHMM = dataForHMM.astype(np.float64)
     dataForHMM = np.reshape(dataForHMM, (-1, 1))
-    print("Data created to train hmm")
 
     #train the model
     model = hmm.GaussianHMM(n_components=5, covariance_type='full', tol=0.001, n_iter=1000)
     model.fit(dataForHMM, lengths)
 
-    print("Model made but not saved")
     #pickle the model
     modelName = filename.split('.')[0] + ".mdl"
     with open(join(path_to_model_save, modelName), 'wb') as f:
