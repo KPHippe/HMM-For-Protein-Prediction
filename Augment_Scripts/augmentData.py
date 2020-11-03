@@ -7,8 +7,8 @@ import random
 import numpy as np
 from hmmlearn import hmm
 
-import Augment.convertData
-import Augment.convertData
+import Augment_Scripts.convertData
+import Augment_Scripts.convertData
 
 '''
 augmentData takes a list of 1 or more seqeunces and uses an HMM to augment the data into a list of n
