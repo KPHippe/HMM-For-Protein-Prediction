@@ -30,7 +30,7 @@ We are working on a solution for hosting the training data and the augmented fil
 
 To run this part of the program run
 ```bash
-python3 main.py --make /path/to/input/data/ /path/to/unformatted/training/data/ /path/to/testing/data
+python3 HMMeta.py --make /path/to/input/data/ /path/to/unformatted/training/data/ /path/to/testing/data
 ```
 
 ### Training Models
@@ -41,14 +41,14 @@ Once again, we are working on getting a solution for our already made models and
 We will be adding options to further customize training parameters, but for now they will be a 5 state Hidden Markov Model.
 
 ```bash
-python3 main.py --train /path/to/training/folder/ /path/for/models/to/be/saved
+python3 HMMeta.py --train /path/to/training/folder/ /path/for/models/to/be/saved
 ```
 
 ### Making Predictions
 Predictions will take files in FASTA format and make GO function predictions.
 
 ```bash
-python3 main.py --predict /path/to/test/sequences/ /path/to/models/ /path/to/save/output/files/
+python3 HMMeta.py --predict /path/to/test/sequences/ /path/to/models/ /path/to/save/output/files/
 ```
 
 ### Optimizations
