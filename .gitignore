@@ -134,8 +134,5 @@ dmypy.json
 # Metadata for windows
 .metadata/
 
-#txt files
-*.txt
-
 #DS STore
 .DS_Store
