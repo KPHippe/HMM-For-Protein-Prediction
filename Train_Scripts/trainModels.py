@@ -1,11 +1,14 @@
 import os
 import sys
-from hmmlearn import hmm
 import pickle
-import numpy as np
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from multiprocessing import Pool
 import shutil
+import numpy as np
+from hmmlearn import hmm
+from os.path import join
+from multiprocessing import Pool
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+
 def trainModels():
 
     try:
@@ -102,7 +105,8 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
     model in '1-2-3-...-27' form
 
     '''
-    with open(path_to_training_file + filename, "r") as f:
+    print("Inside hmmtrain")
+    with open(join(path_to_training_file, filename), "r") as f:
         sequences = f.read().split('\n')
 
     dataForHMM = np.array([])
@@ -118,15 +122,22 @@ def HMMTrain(filename, path_to_training_file, path_to_model_save):
 
     dataForHMM = dataForHMM.astype(np.float64)
     dataForHMM = np.reshape(dataForHMM, (-1, 1))
-
+    print("Data created to train hmm")
 
     #train the model
     model = hmm.GaussianHMM(n_components=5, covariance_type='full', tol=0.001, n_iter=1000)
     model.fit(dataForHMM, lengths)
 
+    print("Model made but not saved")
     #pickle the model
     modelName = filename.split('.')[0] + ".mdl"
-    with open(path_to_model_save + modelName, 'wb') as f:
+    with open(join(path_to_model_save, modelName), 'wb') as f:
         pickle.dump(model, f)
 
     print(f"{modelName} model made")
+
+if __name__ == '__main__':
+    pathToData = sys.argv[1]
+    pathToOutput = sys.argv[2]
+
+    trainModelsProcessPool(pathToData, pathToOutput)

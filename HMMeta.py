@@ -1,7 +1,7 @@
-import parseData
-import convertData
-import trainModels
-import predict
+import Augment.parseData as parseData
+import Augment.convertData as convertData
+from Train.trainModels import trainModelsProcessPool
+import Predict.predict as predict
 
 import sys
 import os
@@ -48,9 +48,7 @@ def main(args):
         total_t = timer() - start
         print(f"Total time: {total_t}")
         sys.exit()
-    '''
-    This ends sys.args processing
-    '''
+
     if("--train") in args:
 
         """
@@ -64,7 +62,7 @@ def main(args):
             print("--train requires 2 arguments, first is path_to_training_file\nSecond is path_FOR_model_output")
             sys.exit()
 
-        trainModels.trainModelsProcessPool(args[1], args[2])
+        trainModelsProcessPool(args[1], args[2])
         print(f"Models saved to {args[2]}")
         sys.exit()
     """
@@ -95,13 +93,6 @@ def main(args):
         else:
             print("Smart move, stopping everything now.")
             sys.exit()
-
-
-    if not os.path.isdir(os.pardir + "/TrainingDataForHMM") and not os.path.isdir(os.pardir +
-            "/TestDataForHMM"):
-
-        print("Something went wrong, /TrainingDataForHMM or /TestDataForHMM not a directory")
-        sys.exit()
 
 
 

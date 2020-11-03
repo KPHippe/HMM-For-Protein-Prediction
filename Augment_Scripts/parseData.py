@@ -8,7 +8,8 @@ import numpy as np
 import random
 import itertools
 
-import augmentData
+import Augment.augmentData
+
 def parse(path_to_input_data, path_to_train_data, path_to_test_data):
 
     file_path = path_to_input_data
