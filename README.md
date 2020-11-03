@@ -8,15 +8,14 @@ The goal of this program is to take in a protein amino acid sequence and constru
 
 Results are still being processed and when results arrive, this repository will be updated to reflect results
 
-## Requirements
-- hmmlearn
-- scikit-learn
-- tqdm
-- numpy
+## Requirements ([Anaconda](https://www.anaconda.com/products/individual))
+1) conda create --n HMMeta python=3.7
+1) conda activate HMMeta
+1) pip install -r requirements.txt
 
 ## How-To
 
-The only thing a user should have to interact with would be main.py.
+The only thing a user should have to interact with would be `HMMeta.py`.
 
 Hidden Markov Models are notoriously computate-intensive and this program is not designed to be run straight through, it would take months. It is designed to be run in chunks, making the data, training the models, and the making predictions
 
