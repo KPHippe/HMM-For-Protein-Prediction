@@ -9,9 +9,9 @@ The goal of this program is to take in a protein amino acid sequence and constru
 Results are still being processed and when results arrive, this repository will be updated to reflect results
 
 ## Requirements ([Anaconda](https://www.anaconda.com/products/individual))
-1) conda create --n HMMeta python=3.7
-1) conda activate HMMeta
-1) pip install -r requirements.txt
+1) `conda create --n HMMeta python=3.7`
+1) `conda activate HMMeta`
+1) `pip install -r requirements.txt`
 
 ## How-To
 
