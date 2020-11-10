@@ -13,7 +13,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 import Predict_Scripts.readSelected as readSelected
 import Predict_Scripts.convertData as convertData
-
+from RequiredResources.required_resources import REQUIRED_RESOURCES_PATH
 
 def predict(pathToTest, pathToModels, pathToOutput):
     models = loadModels(pathToModels)
@@ -36,7 +36,7 @@ def predict(pathToTest, pathToModels, pathToOutput):
     '''
 
     '''Change this to be required resource later'''
-    goTERM_to_ID =  readSelected.establishGOIDtoTermRelations("./RequiredResources/")[1]
+    goTERM_to_ID =  readSelected.establishGOIDtoTermRelations(REQUIRED_RESOURCES_PATH)[1]
 
     '''
     Establish output file with correct header
@@ -141,7 +141,7 @@ def consumer(inQ, outQ):
 
 
         except Exception as e:
-            print("error!", e)
+            print("Error!", e)
             break
 
 def distribute_model_tasks(models, sequence, inQ, outQ):
@@ -166,19 +166,6 @@ def generateScores(protID, sequence, goTERM_to_ID, models):
     #value -> score
     print(f"sequence ID being tested: {protID}")
     scores = {}
-
-    # '''Original method'''
-    # for label, model in models.items():
-    #     dataToFeedIntoHMM = copy.deepcopy(sequence)
-    #
-    #     dataToFeedIntoHMM = np.array(dataToFeedIntoHMM)
-    #     dataToFeedIntoHMM = dataToFeedIntoHMM.astype(np.float64)
-    #     dataToFeedIntoHMM = np.reshape(dataToFeedIntoHMM, (-1,1))
-    #
-    #
-    #     score = model.score(dataToFeedIntoHMM)
-    #
-    #     scores[label] = score
 
     #process and queue
     jobs = 4
@@ -213,6 +200,8 @@ def writeResultsToFile(protID, scores, goTerm_to_ID, pathToOutput, speciesName):
     with open( join(pathToOutput, "CaoLabs2_1_" + speciesName + "_go.txt"), 'a+') as f:
         for goTerm,score in scores[:75]:
             probScore = 1.0 - abs(((score - maxScore)/abs(maxScore)))
+            if (probScore <= 0):
+                continue
             writtenScore = "{:0.2f}".format(probScore)
             f.write(f"{protID[1:].split()[0]}\t{goTerm_to_ID[goTerm]}\t{writtenScore}")
             f.write("\n")

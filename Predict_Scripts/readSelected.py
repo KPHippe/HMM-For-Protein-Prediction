@@ -1,5 +1,6 @@
 import os
 import re
+from os.path import join
 
 """
  This will open a .fasta file and turn it into a dictionary.
@@ -23,12 +24,12 @@ def readFasta(f):
  This will open all three leafonly files, convert them to one long string.
  Then create a dictionary where key -> proteinID number.
  The value -> GoID *MAY HAVE MULTIPLE GO TERMS TO SAME PROTEINID*
- When this happens a list is created and appeneded with the values (GoIDs) 
+ When this happens a list is created and appeneded with the values (GoIDs)
 """
 def getSelectedGroundTruths(pathToFile):
 
 
-    with open(pathToFile + 'leafonly_BPO_unique.txt', 'r') as a, open(pathToFile + 'leafonly_CCO_unique.txt', 'r') as b, open(pathToFile + 'leafonly_MFO_unique.txt', 'r') as c:
+    with open(join(pathToFile, 'leafonly_BPO_unique.txt'), 'r') as a, open(join(pathToFile, 'leafonly_CCO_unique.txt'), 'r') as b, open(join(pathToFile, 'leafonly_MFO_unique.txt'), 'r') as c:
         all_inputs_as_1string = a.readlines() + b.readlines() + c.readlines()
         list_of_all_protID_and_goTerm = []
         dict_of_protID_and_goTerm = {}
@@ -46,11 +47,11 @@ def getSelectedGroundTruths(pathToFile):
             else:
 
                 dict_of_protID_and_goTerm[line[0]].append(line[1])
-        
+
 
 
         return dict_of_protID_and_goTerm
-    
+
 """
     Ths will convert F_3_GO_table.DAT files to dictionary where
     key - > GoID and
@@ -62,7 +63,7 @@ def establishGOIDtoTermRelations(pathToFile):
 
     goID_to_term_dict = {}
     goTerm_to_ID_dict = {}
-    with open(pathToFile + 'F_3_GO_table.DAT', 'r') as f:
+    with open(join(pathToFile, 'F_3_GO_table.DAT'), 'r') as f:
         f = f.read().strip()
         f = re.split('[\s]+', f)
 
