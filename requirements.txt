@@ -1,4 +1,4 @@
-certifi==2020.6.20
+certifi==2022.12.7
 hmmlearn==0.2.4
 joblib==0.17.0
 numpy==1.22.0
